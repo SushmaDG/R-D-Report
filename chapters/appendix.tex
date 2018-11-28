@@ -1,0 +1,23 @@
+%!TEX root = ../DevaramaniS-[RnD-MT]Report.tex
+\chapter{Dynamic equation of motion}\label{chap:dynamic}
+The general dynamic equation of motion of a rigid body is expressed as \cite{featherstone2014rigid} \cite{shakhimardanov2015composable}, 
+\begin{equation}
+	\label{eq:dynamic}
+	M(q)\ddot{q} + C(q, \dot{q}) = \tau 
+\end{equation}
+
+where, $M(q)$ represents mapping from motion domain($M^n$) to force domain($F^n$). $C(q, \dot{q})$ is the Coriolis and Centrifugal forces acting on the rigid body. Both these quantities are dependent on $q$, $\dot{q}$, $\ddot{q}$ and the physical model of rigid body \cite{featherstone2014rigid}
+
+The dynamics problem is divided into forward and inverse dynamics. Computing the acceleration($\ddot{q}$), given the input forces($\tau$) is termed as \textit{forward dynamics} problem. Conversely, \textit{Inverse dynamics} problem calculates the forces, $\tau$ given accelerations $\ddot{q}$.
+
+The rigid body is generally subjected to various motion constraints that changes the form of the dynamics equation. The extended equation is given by \cite{shakhimardanov2015composable},
+
+\begin{equation}
+\label{eq:extendeddynamic}
+M(q)\ddot{q} = \tau_a(q) - \tau_c(q) -  C(q, \dot{q})
+\end{equation}
+
+In the above equation, $\tau_a$ represents input forces and $\tau_c$ is the constraint forces from the task specification.
+
+\chapter{Pl{\"u}ker Notations for Spatial vectors}\label{chap:plucker}
+Your second chapter appendix

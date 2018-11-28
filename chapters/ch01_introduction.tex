@@ -1,0 +1,59 @@
+%!TEX root = ../DevaramaniS-[RnD-MT]Report.tex
+
+\begin{document}
+	
+
+\chapter{Introduction}
+
+Safety is one of the critical factors to be considered when designing robotic systems in human environments \cite{shin2008hybrid}. The robotic engineers and researchers from an extended period, have focused on the safety of robots and its workspace. The growing application of the two main classes of robots, i.e., manipulators and mobile robots in diverse fields adds to the necessity for safety. 
+
+%The robotic tasks involve interaction with the environment either directly or indirectly. The robotic arms directly interact through the manipulation of objects in its workspace. However, the mobile robots interact indirectly,  by avoiding the obstacles while navigating from one point to another. In both cases, 
+
+%The expanding applications of robots in diverse environments has increased the complexity of tasks. Implementing such task
+Robot manipulators are widely employed in an industrial environment. As manipulators are bulky and dangerous, the tasks are confined to a closed environment, away from humans. However, recently, the advancement in the field of manipulators has contributed to a safe interaction with humans. The increasing complexity in tasks has led to never-ending research in the collision handling systems. For instance, a robotic arm performing pick and place operation in a structured environment has to plan and execute the task safely by achieving dynamic collision avoidance.
+Additionally, there are various constraints imposed by the task specification. One such constraint would be to place the object vertically on the table without damaging the object and the workspace. Likewise, many such constraints are imposed as the complexity of tasks increases. There are software frameworks and dynamic solvers targeted to realize the constraints in real-time. \\
+
+Consequently, in the field of autonomous mobile robots, safe navigation is the crucial goal \cite{fox1997dynamic}. Due to their ability to navigate, mobile robots are often employed in applications such as logistics, security and defense, inspection and maintenance, cleaning, agriculture and many more. Typically navigating in populated environments, the mobile robot performs a task under changing external circumstances. Therefore, the robots must plan dynamically to respond to such unforeseen situations \cite{fox1997dynamic}. \\
+
+YET TO WRITE..............
+
+%Robots are proliferating in various fields. The two main classes of robots are robot manipulators and mobile robots. Robot manipulators are used extensively in the industrial environment. The arm can perform repetitive tasks such as pick and place, welding, painting, etc. In spite of their popularity, they suffer from some disadvantages such as lack of mobility and limited reachability around its fixed base. Therefore their tasks are often simple and highly specific to a structured environment. The mobile robots were developed to overcome this restriction to a confined workspace. Due to their ability to move, mobile robots are employed in wide range of applications which include logistics, security and defense, inspection and maintenance, cleaning, agriculture and many more. The robot navigation has been implemented effectively by many approaches. However, these methods often perform obstacle avoidance. And the robot motions are controlled at velocity-level. In some circumstances, the objectives demand force/acceleration constraints if the robot is obliged to come in contact with the environment. The traditional velocity-based control cannot handle the constraints in force/acceleration level. Hence there is a necessity to manage these constraints in mobile robots. In contrast to mobile robots, the need for continuous physical interaction with the environment has already been recognized for several decades in the manipulators. This field is well researched in robotic arms that manipulate objects. The arm/joint parameters are bound by specific force constraints. Specifically, the end-effector joints are limited by allowable force on the object. For instance, consider a pick and place scenario, where the arm has to grasp a fragile glass and place it on a workbench. Here, the end-effector has to grip with a specific force such that the glass neither breaks nor slips out. Additionally, the task might impose multiple constraints, such as the end-effector must place the object perpendicular to the plane by applying limited forces. The arm must satisfy these dynamic constraints. The controller supervises these constraints at that instant of time. Besides, many such task constraints are imposed and hence dynamic solvers are used to realize them instantly. The Popov-Vereshchagin solver is one such dynamic solvers that can handle the requirements presented above in robotic manipulators. The Vereshchagin is a significant algorithm for the posture control of mobile manipulators and humanoid robots since such tasks typically require specifications of motion and/or force constraints on the end-effectors and other segments. The vereshchagin solver can be applied to closed as well as open kinematic chains. Since the wheels and base of the mobile robot can be modeled as a closed kinematic chain, the solver can be extended and applied to mobile robots.
+
+\section{Motivation}
+%\subsection{...}
+
+The robot navigation has been implemented effectively by many approaches. However, these methods often perform obstacle avoidance [19] [8]. And the robot motions are controlled at velocity-level. In some circumstances, the objectives demand force/acceleration constraints if the robot is obliged to come in contact with the environment. The traditional velocity-based control cannot handle the constraints in force/acceleration level. Hence there is a necessity to manage these constraints in mobile robots.
+In contrast to mobile robots, the need for continuous physical interaction with the environment has already been recognized for several decades in the manipulators. This field is well researched in robotic arms that manipulate objects. The arm/joint parameters are bound by specific force constraints [9]. Specifically, the end-effector joints are limited by allowable force on the object. For instance, consider a pick and place scenario, where the arm has to grasp a fragile glass and place it on a workbench. Here, the end-effector has to grip with a specific force such that the glass neither breaks nor slips out. Additionally, the task might impose multiple constraints, such as the end-effector must place the object perpendicular to the plane by applying limited forces. The arm must satisfy these dynamic constraints. The controller supervises these constraints at that instant of time. Besides, many such task constraints are imposed and hence dynamic solvers are used to realize them instantly.
+
+The Vereshchagin solver is one such dynamic solver that can handle the requirements presented above in robotic manipulators. The aim of the project is to extend and apply this solver to mobile robots.
+
+%\subsection{...}
+
+
+\section{Challenges and Difficulties}
+
+YET TO BE WRITTEN!!
+
+
+
+\section{Problem Statement}
+
+The robot manipulators are extensively involved in physical interactions with the objects in the environment. There are various software frameworks and dynamic solvers to manage the task constraints while performing manipulation tasks. However, the mobile robots do not exhibit direct physical contact with the world unless in two circumstances,
+
+\begin{itemize}
+	\item When the robot comes across an obstacle unexpectedly; \\ \textbf{Use case:} Consider an autonomous system navigating from point A to point B by avoiding obstacles. When the robot has to turn around a corner, it is unaware of any approaching obstacles. In such situations, the base must exhibit motions with limited force. Even if the robot comes in contact with the obstacle, it should not harm the environment.
+	\item When the robot task involves contact with an object; \begin{enumerate}
+		\item \textbf{Use case:} Consider a multi-robot system performing logistic tasks in an industrial environment, where a robot has to join itself to another through some means (e.g., a hook). For this purpose, the robot initially has to align and come in contact with the other robot physically to connect itself. In this example, the task demands constraints such as safe alignment with limited acceleration.
+		\item \textbf{Use case:} Consider a wall alignment problem. The usual procedure is to detect the wall, and the mounted sensors continuously compute the distance values from the wall. Based on these values, the robot adjusts its position. In spite of this traditional method, the project presents an approach to exploit the obstacle. If a virtual force is pushing the robot towards the wall, and at one point it comes in contact with the wall. There is an acceleration constraint when it tries to move further. The solver equipped in the article utilizes this constraint to align the robot to the wall.
+	\end{enumerate}
+	The project addresses the safety constraints in the situations as explained in use cases. The project also addresses the issue regarding task specification for mobile bases. Generally, the manipulators involve a task specification strategy to fulfill the sequence of tasks. These tasks impose several constraints on the robot actions. Many software frameworks handle these constraints at the task level. However, in the field of mobile robots, there is no practical implementation of task specification approach. Below is a use case that depicts why task specification procedure would be helpful for mobile bases. 
+	\item \textbf{Use case:} A mobile robot is performing logistic functions in a hospital environment. The task requirement is to carry objects to a destination. Limited velocity and forces constrain the robot motions. Additionally, the robot must drive inside a specified boundary. The robot must effectively be able to handle them instantly. The project presents a similar approach to task specification for mobile bases.\\ The project seeks to solve the issue of handling the constraints arising from multiple tasks.
+	
+\end{itemize}
+
+%
+%\subsection{...}
+%
+%
+%\subsection{...}
+\end{document}

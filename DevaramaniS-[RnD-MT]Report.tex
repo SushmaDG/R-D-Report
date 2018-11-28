@@ -1,0 +1,171 @@
+%
+% LaTeX2e Style for MAS R&D and master thesis reports
+% Author: Argentina Ortega Sainz, Hochschule Bonn-Rhein-Sieg, Germany
+% Please feel free to send issues, suggestions or pull requests to:
+% https://github.com/mas-group/project-report
+% Based on the template created by Ronni Hartanto in 2003
+%
+
+%\documentclass[thesis]{mas_report}
+\documentclass[rnd]{mas_report}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{graphicx}
+%\usepackage{algorithm}
+%\usepackage[noend]{algpseudocode}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+%\usepackage[options]{algorithm2e}
+%\usepackage[colorlinks]{hyperref}
+\usepackage[colorlinks=true,
+	linkcolor=black,
+	urlcolor=blue,
+	citecolor=green]{hyperref}
+	
+%\makeatletter
+%\def\BState{\State\hskip-\ALG@thistlm}
+%\makeatother
+	
+%\usepackage{cleveref}
+%
+%%\colorlet{linkequation}{blue}
+%\creflabelformat{equation}{%
+%	\textup{%
+%		\hypersetup{
+%			linkcolor=black,
+%			linkbordercolor=linkequation,
+%		}%
+%		(#2#1#3)%
+%	}%
+%}
+
+%\usepackage[super,sort&compress]{natbib}
+
+%\hypersetup{colorlinks=true, citecolor=black, colorlinks=false,linkcolor={black},raiselinks=false}
+
+%{\hypersetup{linkbordercolor=green}
+%% \hypersetup{linkbordercolor=linkequation}
+%	% or \hypersetup{linkcolor=black}, if the colorlinks=true option of hyperref is used
+%%	\tableofcontents
+%}
+\usepackage{longtable}
+\newcommand\nomenclature[3]{#1 & #2 & #3 \\}
+% ****************************************************
+% THIS INFORMATION SHOULD BE UPDATED FOR YOUR REPORT
+% ****************************************************
+\author{Sushma Devaramani Patil}
+\title{Extending the Vereshchagin hybrid dynamic solver to mobile robots}
+\supervisors{%
+Prof. Dr. Paul G. Plöger\\
+Sven Schneider
+}
+\date{January  2019}
+
+
+% \thirdpartylogo{path/to/your/image}
+
+\begin{document}
+	\begin{titlepage}
+		\maketitle
+	\end{titlepage}
+	
+	%----------------------------------------------------------------------------------------
+	%	PREFACE
+	%----------------------------------------------------------------------------------------
+	
+	\pagestyle{plain}
+	
+	
+	\cleardoublepage
+	\statementpage
+	
+	\begin{abstract}
+		The objective of the project is to extend and apply the Vereshchagin hybrid dynamic solver to mobile robots. A typical execution of mobile robot tasks involves navigation from one point to another by effectively avoiding obstacles. In autonomous systems, there are various algorithms employed to implement collision avoidance. These approaches follow velocity-based control scheme, which primarily aims at ignoring physical contact with the objects around the robot. However, if the situation demands physical contact robot must not cause any damage to the environment. However, when the robot comes across an obstacle unexpectedly, the velocity control strategy fails. The reason for failure is that the control scheme cannot instantly detect the object and control the robot motions. Therefore, there is a need to include safety constraints which the robot must handle while executing its functions. The issue of handling safety constraints has been addressed in robot manipulators for ages since they are continuously involved in manipulating the objects in the world. Additionally, the diversity of robot motion tasks has led to the development of (constrained) task control methodologies with origins in force control, humanoid robot control, mobile manipulator control, visual servoing, etc. The sequence of tasks such as pick and place operations in manipulators are executed through task specification strategy, where each of the associated task constraints is modeled. Nevertheless, there is no specific task specification approach employed in mobile robots. In robot manipulators, there are several software frameworks, algorithms and dynamic solvers employed to realize the task constraints instantly and efficiently. The Popov-Vereshchagin solver is one such dynamic solvers practiced by manipulators. The Vereshchagin is a significant algorithm for the posture control of mobile manipulators and humanoid robots since such tasks typically require specifications of motion and/or force constraints on the end-effectors and other segments. Additionally, the Vereshchagin solver can be applied to closed as well as open kinematic chains. Since the wheels and base of the mobile robot can be modeled as a closed kinematic chain, the solver can be extended and applied to mobile robots.
+	\end{abstract}
+	
+	
+	\begin{acknowledgements}
+		Thanks to ....
+	\end{acknowledgements}
+	
+	
+	{\hypersetup{hidelinks}
+		% or \hypersetup{linkcolor=black}, if the colorlinks=true option of hyperref is used
+			\tableofcontents
+	}
+	\listoffigures
+	\listoftables
+
+	\newpage
+	\chapter*{Acronyms}
+	\begin{longtable}{@{}p{2.5cm}@{}p{1cm}@{}p{\dimexpr\textwidth-1cm\relax}@{}}
+		\label{sot}\nomenclature{\textbf{SoT}}{-}{Stack of Tasks}%
+		\label{wbc}\nomenclature{\textbf{WBC}}{-}{Whole Body Control}%
+		\label{itasc}\nomenclature{\textbf{iTaSC}}{-}{instantaneous Task Specification and Control}%
+		\label{wbosc}\nomenclature{\textbf{WBOSC}}{-}{Whole Body Operational Space Control}%
+		\label{ocp}\nomenclature{\textbf{OCP}}{-}{Optimal Control Problem}%
+	\end{longtable}
+	
+	\newpage
+	\chapter*{List of symbols}
+	\begin{longtable}{@{}p{1.8cm}@{}p{1cm}@{}p{\dimexpr\textwidth-1cm\relax}@{}}
+		\nomenclature{$M$}{}{Inertia matrix that maps between joint space domain and force domain \setstretch{1.5}} 
+		\nomenclature{$q$}{}{Joint position vector}
+		\nomenclature{$\dot{q}$}{}{Joint velocity vector}
+		\nomenclature{$\ddot{q}$}{}{Joint acceleration vector}
+		\nomenclature{$f_c$}{}{Joint space constraint forces}
+		\nomenclature{$\hat{b}(q, \dot{q})$}{}{Bias acceleration over second order derivative of holonomic position constraint}
+		\nomenclature{$\tau_a$}{}{Input forces}
+		\nomenclature{$\tau_c$}{}{Constraint forces}
+		\nomenclature{$C(q, \dot{q})$}{}{Bias forces}
+		\nomenclature{$\ddot{X}$}{}{Cartesian acceleration}
+		\nomenclature{$H_i$}{}{Inertial matrix of link $i$}
+		\nomenclature{$U_i$}{}{Vector comprising of Coriolis and centrifugal forces}
+		\nomenclature{$d$}{}{Moment of rotor inertia}
+		\nomenclature{$Q$}{}{Generalized forces}
+		\nomenclature{$A_N$}{}{Linear constraint matrix of order 6 x $m$ where $m$ is the number of constraints on a segment}
+		\nomenclature{$b_N$}{}{Acceleration energy (force times acceleration)}	
+	\end{longtable}
+
+	\newpage
+	
+	%To reference the nomencalture	-------------------------------------------
+	%Something.... \hyperref[SoT]{SoT}
+	%-------------------------------------------------------------------------------
+	%	CONTENT CHAPTERS
+	%-------------------------------------------------------------------------------
+	
+	\mainmatter % Begin numeric (1,2,3...) page numbering
+	
+	\pagestyle{mainmatter}
+	
+	\subfile{chapters/ch01_introduction}
+	\subfile{chapters/ch02_stateoftheart}
+	\subfile{chapters/ch03_methodology}
+	\subfile{chapters/ch04_solution}
+	\subfile{chapters/ch05_evaluation}
+	\subfile{chapters/ch06_results}
+	\subfile{chapters/ch07_conclusion}
+	
+	
+	%-------------------------------------------------------------------------------
+	%	APPENDIX
+	%-------------------------------------------------------------------------------
+	
+	\begin{appendices}
+		\subfile{chapters/appendix}
+		
+	\end{appendices}
+	
+	\backmatter
+	
+	%-------------------------------------------------------------------------------
+	%	BIBLIOGRAPHY
+	%-------------------------------------------------------------------------------
+	\addcontentsline{toc}{chapter}{References}
+	\bibliographystyle{plainnat} % Use the plainnat bibliography style
+	\bibliography{bibliography.bib} % Use the bibliography.bib file as the source of references
+	
+\end{document}

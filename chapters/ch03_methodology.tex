@@ -1,0 +1,173 @@
+%!TEX root = ../DevaramaniS-[RnD-MT]Report.tex
+\chapter{Popov-Vereshchagin Hybrid Dynamics Solver}
+
+\section{Solver Interpretation}
+ 
+ Popov et al.~\cite{vereshchagin1989modeling} first introduced the solver in 1989. This linear-time constrained hybrid-dynamic solver is based on one of the principles of mechanics - \textit{Gauss principle of least constraints}~\cite{vereshchagin1989modeling}, that formulates a ``dynamically natural way'' to solve the redundancy problem in manipulators~\cite{bruyninckx2000gauss}. At the basis, the principle states that ``\textit{The constrained motion of a system or mechanism is the closest possible acceleration to free motion (unconstrained) that corresponds to the unique minimum of a convex function.}''~\cite{Ramm2014}. Here, the solver computes the true acceleration of the constrained kinematic chain by minimizing the \textit{acceleration energy}. 
+
+ As defined by the task requirements in a manipulator, various cartesian acceleration constraints are imposed on one or more segments. Physically, these constraints are forces exerted to limit the motion of segments in certain direction, which in turn produces acceleration energy. The solver aims to realize these constraints by minimizing the acceleration energy using domain-specific computational sweeps~\cite{shakhimardanov2015composable}. 
+ 
+% Additionally, by minimizing the Gauss function, the solver computes the true motion/acceleration of the kinematic chain for given control forces \cite{vereshchagin1989modeling}.
+ 
+% Popov et al. first introduced the solver in 1989. This linear-time constraint hybrid-dynamic solver is based on one of the principles of mechanics - Gauss principle of least constraints which formulates a "dynamically natural way" to solve the redundancy problem in manipulators. At the basis, the principle states that the constrained motion of a system or mechanism is the closest possible acceleration to a free motion (unconstrained) that corresponds to a unique minimum of a convex function. As defined by the task requirements in a manipulator, various cartesian acceleration constraints are imposed on one or more segments. Physically, constraints are forces exerted to limit the motion of segments, which in turn produces acceleration energy. The solver aims to realize the acceleration constraints by minimizing the acceleration energy. Furthermore, by minimizing the Gauss function, the solver computes the true motion/acceleration of the kinematic chain for given control forces. 
+ 
+ The solver computes the solution to a constrained system that can be formulated as \cite{shakhimardanov2015composable}, 
+ \begin{equation}\label{eq:dynamic-eq1}
+		 M(q)\ddot{q} + f_c = \tau_a(q) - C(q, \dot{q})
+ \end{equation}
+ 
+% \begin{equation}\label{eq:dynamic-eq2}
+% J_c(q)\ddot{q} = \hat b(q, \dot{q})
+% \end{equation}
+ 
+ The equation \ref{eq:dynamic-eq1} is derived from the robot's dynamic motion model \cite{shakhimardanov2015composable}. See the appendix section \autoref{chap:dynamic} for the complete explanation.
+%  where $M(q)$ represents mapping from joint space acceleration ($\ddot{q}$) to input forces ($\tau_a (q)$). In addition to the input forces, the dynamic model considers the bias forces $C(q, \dot{q})$ such as Coriolis and centrifugal forces. 
+ Here $M(q)$ represents inertial matrix that maps from joint space ($\ddot{q}$) to force space ($\tau$). The term  $f_c$ denotes constraint forces acting on the joints.
+%  The system is subjected to holonomic path constraint ($h(q)$), whose differentiation is given by \ref{eq:dynamic-eq2}. 
+ 
+% The solver finds the solution to the dynamics problem. The task specifications defines constraint forces applied on the links of the manipulator. The solver controls the motion of the end-effector whilst realizing the cartesian constraints. so that it reaches the target. The main aim is to model the whole task specification such that all the constraints are realized. 
+As previously mentioned, the solver minimizes the Gauss function to resolve the redundancy problem in manipulators. It is given by \cite{vereshchagin1989modeling}, 
+
+ 
+
+%%%%%%%%%%%%%%%%%%%%%%%% Minimizing gauss function %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% The Gauss function to be minimized by the solver is \cite{vereshchagin1989modeling},
+% 
+ \begin{equation} \label{eq:gauss}
+	Z = \min_{\ddot{q}} \Big \{\sum_{i=0}^{N} \frac{1}{2} \ddot{X_i}^T H_i \ddot{X_i} + U_i^T\ddot{X_i} + \sum_{i=1}^{N} \frac{1}{2} d_i \ddot{q_i}^2 - Q_i \ddot{q_i} \Big \}
+ \end{equation} 
+ This Gauss function (Z) is subjected to linear constraints given by \cite{shakhimardanov2015composable},
+ \begin{equation} \label{eq:constraint}
+	 A_N^T \ddot{X}_N = b_N
+ \end{equation} 
+ In the equation \ref{eq:gauss},  $Z$ is the acceleration energy of kinematic chain, also called as \textit{Zwang} \cite{shakhimardanov2015composable}.  The function $Z$ is minimized with respect to joint accelerations, $\ddot{q}$. $\ddot{X}_i$ represents 6 x 1 Cartesian acceleration vector of segment $i$, expressed in Pl{\"u}cker coordinates (See the appendix section \autoref{chap:plucker}). $H_i$ is the cartesian space inertial matrix. $U_i$ is a vector of bias forces (i.e., external forces, Coriolis and centrifugal forces) acting on segment $i$. 
+ 
+ In the equation \ref{eq:constraint}, $A_N$ is a matrix of order 6 x $m$ with $m$ as the number of constraints. The columns of the matrix represents the direction of constraint forces experienced by the end-effector. $b_N$ is a vector of order $m$ x 1 and is called acceleration energy set-point. The units of $b_N$ is \textit{acceleration times force}.\\
+ 
+% \begin{equation}
+%	 \label{eq:pluker}
+%	 \ddot{X} = \begin{bmatrix}
+%		 \dot{v_x}\\
+%		 \dot{v_y}\\
+%		 \dot{v_z}\\
+%		 \dot{\omega_x}\\
+%		 \dot{\omega_y}\\
+%		 \dot{\omega_z}\\
+%	 \end{bmatrix}
+% \end{equation}
+% 
+% where, $\ddot{X}$,$H_i$ represents Cartesian accelerations and inertial matrix respectively. $U_i$ is a vector comprising of Coriolis and centrifugal forces.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The Vereshchagin solver is domain-specific, since it solves the constrained optimization problem in the domain of rigid body dynamics. Evaluating for a possible minimum solution to the function \ref{eq:gauss}, in presence of certain linear constraints is termed as \textit{constrained optimization problem}. The equation is thus extended to \cite{shakhimardanov2015composable}, 
+
+ \begin{equation} \label{eq:minimization}
+ Z = \min_{\ddot{q}} \Big \{\sum_{i=0}^{N} \frac{1}{2} \ddot{X_i}^T H_i \ddot{X_i} + U_i^T\ddot{X_i} + \sum_{i=1}^{N} \frac{1}{2} d_i \ddot{q_i}^2 - Q_i \ddot{q_i} + \nu_T A^T_N \ddot{X}_N \Big \}
+ \end{equation} 
+$Z$ is a quadratic function and is minimized by applying the method of Lagrange multipliers \cite{bertsekas2014constrained}, where $\nu$ is the non-negative \textit{Lagrange multiplier}. In further steps, the solver is derived based on the \textit{Bellman's principle of optimality}~\cite{bertsekas1996dynamic}~\cite{bellman2013dynamic}. The equation is reformulated  as~\cite{shakhimardanov2015composable},
+ \begin{equation} \label{eq:bellman}
+ Z_{i-1}(\ddot{X}_{i-1}, \nu) = \min_{\ddot{q}} \Big \{ \frac{1}{2} \ddot{X}_{i-1}^T H_{i-1} \ddot{X_{i-1}} + U_i^T\ddot{X_i} + \frac{1}{2} d_i \ddot{q_i}^2 - Q_i \ddot{q_i} + Z_i(\ddot{X}_i, \nu)\Big \}
+ \end{equation} 
+ 
+ On further solving the equation \ref{eq:bellman} and minimizing with respect to $\ddot{q}$ will yield the solution to a constrained dynamics problem, which is of the form~\cite{shakhimardanov2015composable}, 
+ 
+  \begin{equation}\label{eq:solution}
+  F_c = A_N \nu
+  \end{equation}
+where, $F_c$ is the vector of constraint forces imposed on the segments.
+
+
+To determine the true acceleration of the constrained kinematic chain at every instance of time, the Vereshchagin solver applies computational sweeps. Through these outward and inward recursions, the solver visits every segments(links) and returns \textit{joint accelerations} ($\ddot{q}$), \textit{Cartesian accelerations} ($\ddot{X}$) and joint torques ($\tau_{control}$) as the solution to the constrained dynamics problem~\cite{shakhimardanov2015composable}. 
+
+\section{Algorithm Description}
+
+The algorithm illustrating the computational sweeps in the Vereshchagin solver is described in this section. As specified, the algorithm comprises three recursions - outward, inward and outward. Here, the outward recursion refers to traversing from the fixed base of a kinematic chain to its end-effector. Contrarily, the inward recursion loops from end-effector to base. Through these recursions, the solver computes the dynamics of a kinematic chain that is subjected to acceleration constraints. 
+
+	The complete algorithm is given below~\cite{shakhimardanov2015composable} \cite{vereshchagin1989modeling},
+
+	\newpage
+\begin{algorithm}[h!]
+
+	\label{Algorithm1}
+%	\DontPrintSemicolon
+	\SetAlgoLined
+%	\KwResult{Write here the result}
+	\SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+	\Input{Robot geometry, inertial data, $q_i$, $\dot{q_i}$, $\tau_i$, $\ddot{X_0}$, $F_i^{ext}$, $A_N$, $b_N$}
+	\Output{$\tau_{control}$, $\ddot{q}_i$, $\ddot{X_i}$}
+	\Begin{
+
+		\tcc{\textit{Outward sweep of pose, twist and bias components}}
+		
+		\BlankLine
+		   
+		\For {$i \leftarrow$ $0$ to $N-1$ }{
+			$ \prescript{i+1}{i}{X} = \big(\prescript{d_i}{i}{X} \prescript{i+1}{d_i}{X(q_i)}\big); $\\
+			$\dot{X}_{i+1} = (\prescript{i+1}{}{T}v_i)\dot{X}_i + S_{i+1}\dot{q}_{i+1};$\\
+			$\ddot{X}_{bias, i+1} = \dot{X}_{i+1} \times S_{i+1}\dot{q}_{i+1};$\\
+			$F_{bias, i+1}^b = \dot{X}_{i+1} \times^* H_{i+1}\dot{X}_{i+1};$\\
+			$\bar{F}_{bias, i+1}^b = F_{bias, i+1}^b - (\prescript{i+1}{}{T}f_0)^{i+1}F_0^{ext};$\\
+			$H_{i+1}^A = H_{i+1};$\\
+			$F_{i+1}^A = \bar{F}_{bias, i+1}^b;$		             
+		} 
+			\tcc{\textit{Inward sweep of inertia and force}}
+		\For{$i \leftarrow (N-1)$ to $0$}{
+			$D_{i+1} = d_{i+1} + S_{i+1}^TH_{i+1}^A S_{i+1};$\\
+			$P_{i+1}^A = 1 - H_{i+1}^A S_{i+1} D_{i+1}^{-1} S_{i+1}^T;$\\
+			$H_{i+1}^a = P_{i+1}^A H_{i+1}^A;$\\
+			$H_i^A = H_i^A + \sum (\prescript{i+1}{}{T}v_{i+1})^T H_{i+1}^a (\prescript{i+1}{}{T}v_{i+1});$\\
+			$F_{i+1}^a = P_{i+1}^A F_{i+1}^A  + H_{i+1}^A S_{i+1} D_{i+1}^{-1} \tau_{i+1} + H_{i+1}^a \ddot{X}_{bias, i+1};$\\
+			$F_i^A = F_i^A + \sum (\prescript{i}{}{T}f_{i+1})F_{i+1}^a ;$\\
+			$A_i = (\prescript{i}{}{T}v_{i+1}^T) P_{i+1} A_{i+1};$\\
+			$U_i = U_{i+1} + A_{i+1}^T \big\{ \ddot{X}_{bias, i+1} + S_iD^{-1} \big (\tau_{i+1} - S_i^T(F_{i+1} + H_{i+1}^a \ddot{X}_{bias, i+1}))\big\};$\\
+			$\mathcal{L}_i = \mathcal{L}_{i+1} - A_{i+1}^T S_{i+1} D_{i+1}^{-1} S_{i+1}^T A_{i+1}, \mathcal{L}_N = 0;$\\
+			$\mathcal{L}_0 v + A_0^T \ddot{X}_0 + U_0 = b_N$;\\
+	}
+	
+	 \tcc{\textit{Outward sweep of acceleration}}
+	\For{$i \leftarrow$ $0$ to $N-1$}{
+			$\ddot{q}_{i+1} = D_{i+1}^{-1} \big\{ \tau_{i+1} - S_{i+1}^T \big(F_{i+1} + H_{i+1}^A \big((\prescript{i+1}{}{T}v_i) \ddot{X}_i + \ddot{X}_{bias, i+1}) + A_{i+1}v )\big \};$\\
+			$\ddot{X}_{i+1} = (\prescript{i+1}{}{T} v_i) \ddot{X}_i + \ddot{q}_{i+1} S_{i+1} + \ddot{X}_{bias, i+1};$	
+	}
+}   
+
+	\caption{Constrained Hybrid Dynamic Solver}
+\end{algorithm}
+
+
+The required inputs to the algorithm (\ref{Algorithm1}) are listed below;
+\begin{itemize}
+	\item \textit{Robot model parameters} - A complete robot model defined by rigid body parameters such as mass, inertia, link lengths of individual segments.
+	\item \textit{Joint positions} defined at current time instance ($q_i$).
+	\item \textit{Joint velocities} ($\dot{q}_i$)
+	\item \textit{Feed-forward joint torques} ($\tau_i$)
+	\item \textit{Cartesian acceleration} at current instance of time defined at the base ($\ddot{X}_0$).
+	\item \textit{External forces} ($F^{ext}_i$).
+	\item \textit{Unit constrained forces} applied at the end-effector defined as a matrix ($A_N$).
+	\item \textit{Acceleration energy set-point} defined at the end-effector ($b_N$).
+\end{itemize}
+
+The algorithm (\ref{Algorithm1}) computes the instantaneous robot motion through link-to-link recursions~\cite{shakhimardanov2015composable}. In the following subsections, the associated equations are illustrated.
+
+\subsection{Outward sweep : position, velocity and acceleration recursions}
+The outward recursion solves the forward dynamics problem. In the algorithm, the first \textit{for loop} iterates from the segment $0$ (base) to segment $N-1$ (end-effector). During the recursion, it computes the pose, velocity and acceleration values. Furthermore, it calculates the bias forces and initializes rigid body inertia of the kinematic chain. 
+
+To compute the desired quantities two operations are used~\cite{shakhimardanov2015composable}, one is the \textit{change in reference point}, where the vector representation of the physical entities such as position, velocity and acceleration are changed from proximal joint pose frame $\{p_i\}$ to distal joint pose frame $\{d_i\}$, and other is incorporation of these entities with respect to joint $\{i+1\}$.
+
+The pose from the segment $i$ to $i+1$ is denoted as $\prescript{i+1}{i}{X}$. This is calculated by the combined transformation of,\begin{itemize}
+	\item $\prescript{d_i}{i}{X}$ - pose from current segment $i$ to distal pose frame $d_i$ and;
+	\item $\prescript{i+1}{d_i}{X}$ - pose transformation of distal segment $d_i$ to segment $i+1$. 
+\end{itemize} 
+
+In line 4, the spatial velocity vector of segment $\{i+1\}$ is calculated recursively by adding $(Tv_i)\ddot{X}_i$ and joint velocities ($S_{i+1}\dot{q}_{i+1}$). Here 
+
+%In the algorithm, the first \textit{for loop} determines the pose from the current segment $i$ and distal segment $i+1$, expressed as .
+
+\subsection{Inward sweep : force and inertia recursions}
+
+\section{Algorithm representation}{......}
+
+\section{Modeling kinematic tree for Care-O-Bot}{......}
+

@@ -19,5 +19,33 @@ M(q)\ddot{q} = \tau_a(q) - \tau_c(q) -  C(q, \dot{q})
 
 In the above equation, $\tau_a$ represents input forces and $\tau_c$ is the constraint forces from the task specification.
 
-\chapter{Pl{\"u}ker Notations for Spatial vectors}\label{chap:plucker}
+\chapter{Pl{\"u}cker Notations for Spatial vectors}\label{chap:plucker}
 Your second chapter appendix
+
+\chapter{Pl{\"u}cker Notations for Spatial cross products}\label{chap:cross}
+
+There are two spatial cross product operators expressed using Pl{\"u}cker notations are, $\times$ and $\times^*$ \cite{featherstone2014rigid}. The operators can be regarded as dual to each other. The matrix representation of these operators are deduced as \cite{featherstone2014rigid},
+
+	\begin{equation}
+	\label{eq:cross1}
+		\hat v_O \times = \begin{bmatrix}
+			\omega \\ v_O
+		\end{bmatrix} \times = \begin{bmatrix}
+			\omega \times & 0 \\
+			v_O \times & \omega \times
+		\end{bmatrix}
+	\end{equation}
+	
+	and,
+	
+	\begin{equation}
+	\label{eq:cross2}
+	\hat v_O \times^* = \begin{bmatrix}
+	\omega \\ v_O
+	\end{bmatrix} \times^* = \begin{bmatrix}
+	\omega \times & v_O \times \\
+	0 & \omega \times
+	\end{bmatrix}
+	\end{equation}
+	
+	

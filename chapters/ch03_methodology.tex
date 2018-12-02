@@ -85,7 +85,7 @@ To determine the true acceleration of the constrained kinematic chain at every i
 
 The algorithm illustrating the computational sweeps in the Vereshchagin solver is described in this section. As specified, the algorithm comprises three recursions - outward, inward and outward. Here, the outward recursion refers to traversing from the fixed base of a kinematic chain to its end-effector. Contrarily, the inward recursion loops from end-effector to base. Through these recursions, the solver computes the dynamics of a kinematic chain that is subjected to acceleration constraints. 
 
-	The complete algorithm is given below~\cite{shakhimardanov2015composable},
+	The complete algorithm is given below~\cite{shakhimardanov2015composable}~\cite{vereshchagin1989modeling}~\cite{vukcevic2018extending},
 
 	\newpage
 \begin{algorithm}[h!]
@@ -104,32 +104,31 @@ The algorithm illustrating the computational sweeps in the Vereshchagin solver i
 		\BlankLine
 		   
 		\For {$i \leftarrow$ $0$ to $N-1$ }{
-			$ \prescript{i+1}{i}{X} = \big(\prescript{d_i}{i}{X} \prescript{i+1}{d_i}{X(q_i)}\big); $\\
-			$\dot{X}_{i+1} = \prescript{i+1}{}{X}_i\dot{X}_i + S_{i+1}\dot{q}_{i+1};$\\
-			$\ddot{X}_{bias, i+1} = \dot{X}_{i+1} \times S_{i+1}\dot{q}_{i+1};$\\
-			$F_{bias, i+1}^b = \dot{X}_{i+1} \times^* H_{i+1}\dot{X}_{i+1};$\\
-			$\bar{F}_{bias, i+1}^b = F_{bias, i+1}^b - (\prescript{i+1}{}{T}f_0)^{i+1}F_0^{ext};$\\
-			$H_{i+1}^A = H_{i+1};$\\
-			$F_{i+1}^A = \bar{F}_{bias, i+1}^b;$		             
+		$ \prescript{i+1}{i}{X} = \big(\prescript{d_i}{i}{X} \prescript{i+1}{d_i}{X(q_i)}\big);$ \\ \label{3}
+		$\dot{X}_{i+1} = \prescript{i+1}{}{X}_i\dot{X}_i + S_{i+1}\dot{q}_{i+1};$\\ \label{4}
+		$\ddot{X}_{bias, i+1} = \dot{X}_{i+1} \times S_{i+1}\dot{q}_{i+1};$\\ \label{5}
+		$F_{bias, i+1}^b = \dot{X}_{i+1} \times^* H_{i+1}\dot{X}_{i+1} - (\prescript{i+1}{}{T}f_0)^{i+1}F_0^{ext};$\\ \label{6}
+			$H_{i+1}^A = H_{i+1};$\\ \label{7}
+			$F_{i+1}^A = \bar{F}_{bias, i+1}^b;$ \label{8}             
 		} 
 			\tcc{\textit{Inward sweep of inertia and force}}
 		\For{$i \leftarrow (N-1)$ to $0$}{
-			$D_{i+1} = d_{i+1} + S_{i+1}^TH_{i+1}^A S_{i+1};$\\
-			$P_{i+1}^A = 1 - H_{i+1}^A S_{i+1} D_{i+1}^{-1} S_{i+1}^T;$\\
-			$H_{i+1}^a = P_{i+1}^A H_{i+1}^A;$\\
-			$H_i^A = H_i^A + \sum (\prescript{i+1}{}{T}v_{i+1})^T H_{i+1}^a (\prescript{i+1}{}{T}v_{i+1});$\\
-			$F_{i+1}^a = P_{i+1}^A F_{i+1}^A  + H_{i+1}^A S_{i+1} D_{i+1}^{-1} \tau_{i+1} + H_{i+1}^a \ddot{X}_{bias, i+1};$\\
-			$F_i^A = F_i^A + \sum (\prescript{i}{}{T}f_{i+1})F_{i+1}^a ;$\\
-			$A_i = (\prescript{i}{}{T}v_{i+1}^T) P_{i+1} A_{i+1};$\\
-			$U_i = U_{i+1} + A_{i+1}^T \big\{ \ddot{X}_{bias, i+1} + S_iD^{-1} \big (\tau_{i+1} - S_i^T(F_{i+1} + H_{i+1}^a \ddot{X}_{bias, i+1}))\big\};$\\
-			$\mathcal{L}_i = \mathcal{L}_{i+1} - A_{i+1}^T S_{i+1} D_{i+1}^{-1} S_{i+1}^T A_{i+1}, \mathcal{L}_N = 0;$\\
-			$\mathcal{L}_0 v + A_0^T \ddot{X}_0 + U_0 = b_N$;\\
+			$D_{i+1} = d_{i+1} + S_{i+1}^TH_{i+1}^A S_{i+1};$\\ \label{11}
+			$P_{i+1}^A = 1 - H_{i+1}^A S_{i+1} D_{i+1}^{-1} S_{i+1}^T;$\\ \label{12}
+			$H_{i+1}^a = P_{i+1}^A H_{i+1}^A;$\\ \label{13}
+			$H_i^A = H_i^A + \sum (\prescript{i+1}{}{T}v_{i+1})^T H_{i+1}^a (\prescript{i+1}{}{T}v_{i+1});$\\ \label{14}
+			$F_{i+1}^a = P_{i+1}^A F_{i+1}^A  + H_{i+1}^A S_{i+1} D_{i+1}^{-1} \tau_{i+1} + H_{i+1}^a \ddot{X}_{bias, i+1};$\\ \label{15}
+			$F_i^A = F_i^A + \sum (\prescript{i}{}{T}f_{i+1})F_{i+1}^a ;$\\ \label{16}
+			$A_i = (\prescript{i}{}{T}v_{i+1}^T) P_{i+1} A_{i+1};$\\ \label{17}
+			$U_i = U_{i+1} + A_{i+1}^T \big\{ \ddot{X}_{bias, i+1} + S_iD^{-1} \big (\tau_{i+1} - S_i^T(F_{i+1} + H_{i+1}^a \ddot{X}_{bias, i+1}))\big\};$\\ \label{18}
+			$\mathcal{L}_i = \mathcal{L}_{i+1} - A_{i+1}^T S_{i+1} D_{i+1}^{-1} S_{i+1}^T A_{i+1}$\\ \label{19}
 	}
+			$\nu = \mathcal{L}_0^{-1}(b_N -  A_0^T \ddot{X}_0 - U_0) $;\\ \label{21}
 	
 	 \tcc{\textit{Outward sweep of acceleration}}
 	\For{$i \leftarrow$ $0$ to $N-1$}{
-			$\ddot{q}_{i+1} = D_{i+1}^{-1} \big\{ \tau_{i+1} - S_{i+1}^T \big(F_{i+1} + H_{i+1}^A \big((\prescript{i+1}{}{T}v_i) \ddot{X}_i + \ddot{X}_{bias, i+1}) + A_{i+1}v )\big \};$\\
-			$\ddot{X}_{i+1} = (\prescript{i+1}{}{T} v_i) \ddot{X}_i + \ddot{q}_{i+1} S_{i+1} + \ddot{X}_{bias, i+1};$	
+			$\ddot{q}_{i+1} = D_{i+1}^{-1} \big\{ \tau_{i+1} - S_{i+1}^T \big(F_{i+1} + H_{i+1}^A \big((\prescript{i+1}{}{T}v_i) \ddot{X}_i + \ddot{X}_{bias, i+1}) + A_{i+1} \nu )\big \};$\\ \label{23}
+			$\ddot{X}_{i+1} = (\prescript{i+1}{}{T} v_i) \ddot{X}_i + \ddot{q}_{i+1} S_{i+1} + \ddot{X}_{bias, i+1};$	\label{24}
 	}
 }   
 
@@ -162,15 +161,20 @@ The pose from the segment $i$ to $i+1$ is denoted as $\prescript{i+1}{i}{X}$. Th
 	\item $\prescript{i+1}{d_i}{X}$ - pose transformation of distal segment $d_i$ to segment $i+1$. 
 \end{itemize} 
 
-In line 4, the \textit{spatial velocity vector} at segment $i+1$ is calculated, which is represented by $\ddot{X}_{i+1}$. The expression is evaluated as the summation of $\prescript{i+1}{}{X}_i\ddot{X}_i$ and  $S_{i+1}\dot{q}_{i+1}$ recursively. Here the first term represents velocity of segment $i$ expressed in the coordinates of segment $i+1$. The transformation from link $i$ to $i+1$ is computed by matrix $\prescript{i+1}{}{X}_{i}$. The second term refers to joint velocity contributions ($\dot{q}_{i+1}$) that is expressed using motion subspace matrix ($S_{i+1}$).
+In line \ref{4}, the \textit{spatial velocity vector} at segment $i+1$ is calculated, which is represented by $\ddot{X}_{i+1}$. The expression is evaluated as the summation of $\prescript{i+1}{}{X}_i\ddot{X}_i$ and  $S_{i+1}\dot{q}_{i+1}$ recursively. Here the first term represents velocity of segment $i$ expressed in the coordinates of segment $i+1$. The transformation from link $i$ to $i+1$ is computed by matrix $\prescript{i+1}{}{X}_{i}$. The second term refers to joint velocity contributions ($\dot{q}_{i+1}$) that is expressed using motion subspace matrix ($S_{i+1}$).
 
-The next equation (in line 5) denotes \textit{bias acceleration} at segment $i+1$, noted as $\ddot{X}_{bias, i+1}$. Since the joint acceleration components are unknown at this stage, only the bias acceleration is computed, provided the cartesian and joint space acceleration of previous link. The cross product denotes the cartesian space acceleration expressed in link coordinates and $\dot{X} \times S$ signifies time derivative of $S$. 
+The next equation (line \ref{5}) denotes \textit{bias acceleration} at segment $i+1$, noted as $\ddot{X}_{bias, i+1}$. Since the joint acceleration components are unknown at this stage, only the bias acceleration is computed, provided the cartesian and joint space acceleration of previous link. Here, $\dot{X} \times S$ signifies time derivative of $S$. 
+% The cross product denotes the cartesian space acceleration expressed in link coordinates and 
 
-Furthermore, \textit{bias forces} are determined by the expression in line 6, given the cartesian velocity vector, $\dot{X}_{i+1}$ and inertia matrix, $H_{i+1}$. The term $\times^*$ is the cross product operator expressed in Pl{\"u}cker coordinates (refer to appendix section \ref{chap:cross} for explanation on spatial cross products). The bias forces is influenced by the external forces as well. Hence, the expression considers \textit{external applied forces}, $F^{ext}_{0, i+1}$ and is transformed from base to end-effector, expressed by transformation matrix, $\prescript{i+1}{}{X}_0^*$
+Furthermore, \textit{bias forces} are determined by the expression in line \ref{6}, given the cartesian velocity vector, $\dot{X}_{i+1}$ and inertia matrix, $H_{i+1}$. The term $\times^*$ is the cross product operator expressed in Pl{\"u}cker coordinates (refer to appendix section \ref{chap:cross} for explanation on spatial cross products). The bias forces is influenced by the \textit{external forces} as well, given by $F^{ext}_{0, i+1}$ and is transformed from base to end-effector coordinates, expressed by transformation matrix for force vectors, $\prescript{i+1}{}{X}_0^*$. See the appendix section \ref{chap:coordinate} for coordinate transformation on force and motion vectors.
 
-%In the algorithm, the first \textit{for loop} determines the pose from the current segment $i$ and distal segment $i+1$, expressed as .
+In the line \ref{7} and \ref{8}, \textit{articulated body inertia} and \textit{articulated bias forces} respectively are initialized with \textit{rigid body} quantities. These values are further used in inward sweep.
 
 \subsection{Inward sweep : force and inertia recursions}
+
+The joint torques and external forces acting on the distal segments collectively generates \textit{inertia-dependent} acceleration on the proximal segments. A set of recursive equations in inward sweep computes these force and inertial parameters. 
+
+The combined inertias of segment $i+1$ and joint rotor inertia ($d_{i+1}$) is computed by expression in line \ref{11}. Matrix $P^A_{i+1}$ is a projection matrix, that projects \textit{articulated body inertia} and \textit{bias forces} to joint subspace~\cite{shakhimardanov2015composable}.
 
 \subsection{Outward sweep : Joint torque and link acceleration }
 

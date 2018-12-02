@@ -48,4 +48,14 @@ There are two spatial cross product operators expressed using Pl{\"u}cker notati
 	\end{bmatrix}
 	\end{equation}
 	
-	
+\chapter{Representation of coordinate transforms}\label{chap:coordinate}	
+
+In this section, the notations used to represent coordinate transformation matrices on motion and force vectors is presented. This follows the convention given in \cite{featherstone2014rigid}.
+
+\begin{itemize}
+	\item $\prescript{i+1}{}{X}_i$ - denotes coordinate transform from $i$ to $i+1$ coordinates of a motion vector,
+	\item $\prescript{i+1}{}{X}_i^*$ - denotes coordinate transform from $i$ to $i+1$ coordinates of a force vector.
+\end{itemize}
+
+These transforms are related by the following equation \cite{featherstone2014rigid},
+$$ \prescript{i+1}{}{X}_i^* = \prescript{i+1}{}{X}_i^{-T}$$

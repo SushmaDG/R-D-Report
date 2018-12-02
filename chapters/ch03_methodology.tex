@@ -156,10 +156,18 @@ The outward recursion solves the forward dynamics problem. In the algorithm, the
 
 To compute the desired quantities two operations are used~\cite{shakhimardanov2015composable}, one is the \textit{change in reference point}, where the vector representation of the physical entities such as position, velocity and acceleration are changed from proximal joint pose frame $\{p_i\}$ to distal joint pose frame $\{d_i\}$, and other is incorporation of these entities with respect to joint $\{i+1\}$.
 
-The pose from the segment $i$ to $i+1$ is denoted as $\prescript{i+1}{i}{X}$. This is calculated by the combined transformation of,\begin{itemize}
+The pose from the segment $i$ to $i+1$ is denoted as $\prescript{i+1}{i}{X}$. This is calculated by the combined transformation between proximal and distal segment frames attached to link (refer to figure \ref{fig:pose}). The two transformation matrices are, \begin{itemize}
 	\item $\prescript{d_i}{i}{X}$ - pose from current segment $i$ to distal pose frame $d_i$ and;
 	\item $\prescript{i+1}{d_i}{X}$ - pose transformation of distal segment $d_i$ to segment $i+1$. 
 \end{itemize} 
+
+\begin{figure}[h!]
+		\label{fig:pose}
+	\centering
+	\includegraphics[scale=0.3]{images/pose.png}
+	\caption{Proximal and distal segment frames attachment in a generic kinematic chain and transformation between them ($\prescript{d_i}{i}{X}$)~\cite{shakhimardanov2015composable}.}
+
+\end{figure}
 
 In line \ref{4}, the \textit{spatial velocity vector} at segment $i+1$ is calculated, which is represented by $\ddot{X}_{i+1}$. The expression is evaluated as the summation of $\prescript{i+1}{}{X}_i\ddot{X}_i$ and  $S_{i+1}\dot{q}_{i+1}$ recursively. Here the first term represents velocity of segment $i$ expressed in the coordinates of segment $i+1$. The transformation from link $i$ to $i+1$ is computed by matrix $\prescript{i+1}{}{X}_{i}$. The second term refers to joint velocity contributions ($\dot{q}_{i+1}$) that is expressed using motion subspace matrix ($S_{i+1}$).
 
@@ -174,7 +182,8 @@ In the line \ref{7} and \ref{8}, \textit{articulated body inertia} and \textit{a
 
 The joint torques and external forces acting on the distal segments collectively generates \textit{inertia-dependent} acceleration on the proximal segments. A set of recursive equations in inward sweep computes these force and inertial parameters. 
 
-The combined inertias of segment $i+1$ and joint rotor inertia ($d_{i+1}$) is computed by expression in line \ref{11}. Matrix $P^A_{i+1}$ is a projection matrix, that projects \textit{articulated body inertia} and \textit{bias forces} to joint subspace~\cite{shakhimardanov2015composable}.
+The combined inertias of segment $i+1$ and joint rotor inertia ($d_{i+1}$) is computed by expression in line \ref{11}. Matrix $P^A_{i+1}$ is a projection matrix, that projects \textit{articulated body inertia} and \textit{bias forces} to joint subspace~\cite{shakhimardanov2015composable}. In further steps, the algorithm calculates \textit{apparent inertia} (line \ref{13}) represented as $H^a_{i+1}$, this is the inertia contributions from the child segments. And \textit{articulated body inertia} (line \ref{14}) denoted as $H^A_{i}$ is calculated by adding all the apparent inertias. Similarly, apparent ($F^a_{bias, i+1}$) and articulated bias forces ($F^A_{bias, i}$) are computed by expression in line \ref{15} and \ref{16} respectively.
+
 
 \subsection{Outward sweep : Joint torque and link acceleration }
 

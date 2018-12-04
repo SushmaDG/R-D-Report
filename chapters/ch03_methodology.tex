@@ -107,22 +107,23 @@ The algorithm illustrating the computational sweeps in the Vereshchagin solver i
 		$ \prescript{i+1}{i}{X} = \big(\prescript{d_i}{i}{X} \prescript{i+1}{d_i}{X(q_i)}\big);$ \\ \label{3}
 		$\dot{X}_{i+1} = \prescript{i+1}{}{X}_i\dot{X}_i + S_{i+1}\dot{q}_{i+1};$\\ \label{4}
 		$\ddot{X}_{bias, i+1} = \dot{X}_{i+1} \times S_{i+1}\dot{q}_{i+1};$\\ \label{5}
-		$F_{bias, i+1}^b = \dot{X}_{i+1} \times^* H_{i+1}\dot{X}_{i+1} - (\prescript{i+1}{}{T}f_0)^{i+1}F_0^{ext};$\\ \label{6}
+		$F_{bias, i+1}^b = \dot{X}_{i+1} \times^* H_{i+1}\dot{X}_{i+1} - \prescript{i+1}{}{X}_0^*F_0^{ext};$\\ \label{6}
 			$H_{i+1}^A = H_{i+1};$\\ \label{7}
-			$F_{i+1}^A = \bar{F}_{bias, i+1}^b;$ \label{8}             
+			$F_{bias, i+1}^A = {F}_{bias, i+1}^b;$ \label{8}             
 		} 
 			\tcc{\textit{Inward sweep of inertia and force}}
 		\For{$i \leftarrow (N-1)$ to $0$}{
 			$D_{i+1} = d_{i+1} + S_{i+1}^TH_{i+1}^A S_{i+1};$\\ \label{11}
 			$P_{i+1}^A = 1 - H_{i+1}^A S_{i+1} D_{i+1}^{-1} S_{i+1}^T;$\\ \label{12}
 			$H_{i+1}^a = P_{i+1}^A H_{i+1}^A;$\\ \label{13}
-			$H_i^A = H_i^A + \sum (\prescript{i+1}{}{T}v_{i+1})^T H_{i+1}^a (\prescript{i+1}{}{T}v_{i+1});$\\ \label{14}
-			$F_{i+1}^a = P_{i+1}^A F_{i+1}^A  + H_{i+1}^A S_{i+1} D_{i+1}^{-1} \tau_{i+1} + H_{i+1}^a \ddot{X}_{bias, i+1};$\\ \label{15}
-			$F_i^A = F_i^A + \sum (\prescript{i}{}{T}f_{i+1})F_{i+1}^a ;$\\ \label{16}
-			$A_i = (\prescript{i}{}{T}v_{i+1}^T) P_{i+1} A_{i+1};$\\ \label{17}
-			$U_i = U_{i+1} + A_{i+1}^T \big\{ \ddot{X}_{bias, i+1} + S_iD^{-1} \big (\tau_{i+1} - S_i^T(F_{i+1} + H_{i+1}^a \ddot{X}_{bias, i+1}))\big\};$\\ \label{18}
+			$H_i^A = H_i^A + \sum  \prescript{i}{}{X}_{i+1}^T H_{i+1}^a \prescript{i}{}{X}_{i+1};$\\ \label{14}
+			$F_{bias, i+1}^a = P_{i+1}^A F_{i+1}^A  + H_{i+1}^A S_{i+1} D_{i+1}^{-1} \tau_{i+1} + H_{i+1}^a \ddot{X}_{bias, i+1};$\\ \label{15}
+			$F_{bias,i}^A = F_{bias,i}^A + \sum \prescript{i}{}{X}_{i+1}^*F_{bias, i+1}^a ;$\\ \label{16}
+			$A_i = \prescript{i}{}{X}_{i+1}^T P_{i+1}^A A_{i+1};$\\ \label{17}
+			$U_i = U_{i+1} + A_{i+1}^T \big\{ \ddot{X}_{bias, i+1} + S_iD^{-1} \big (\tau_{i+1} - S_i^T(F^A_{bias, i+1} + H_{i+1}^a \ddot{X}_{bias, i+1}))\big\};$\\ \label{18}
 			$\mathcal{L}_i = \mathcal{L}_{i+1} - A_{i+1}^T S_{i+1} D_{i+1}^{-1} S_{i+1}^T A_{i+1}$\\ \label{19}
 	}
+	\tcc{\textit{Linear constraint force magnitudes}}
 			$\nu = \mathcal{L}_0^{-1}(b_N -  A_0^T \ddot{X}_0 - U_0) $;\\ \label{21}
 	
 	 \tcc{\textit{Outward sweep of acceleration}}
@@ -180,12 +181,30 @@ In the line \ref{7} and \ref{8}, \textit{articulated body inertia} and \textit{a
 
 \subsection{Inward sweep : force and inertia recursions}
 
-The joint torques and external forces acting on the distal segments collectively generates \textit{inertia-dependent} acceleration on the proximal segments. A set of recursive equations in inward sweep computes these force and inertial parameters. 
-
-The combined inertias of segment $i+1$ and joint rotor inertia ($d_{i+1}$) is computed by expression in line \ref{11}. Matrix $P^A_{i+1}$ is a projection matrix, that projects \textit{articulated body inertia} and \textit{bias forces} to joint subspace~\cite{shakhimardanov2015composable}. In further steps, the algorithm calculates \textit{apparent inertia} (line \ref{13}) represented as $H^a_{i+1}$, this is the inertia contributions from the child segments. And \textit{articulated body inertia} (line \ref{14}) denoted as $H^A_{i}$ is calculated by adding all the apparent inertias. Similarly, apparent ($F^a_{bias, i+1}$) and articulated bias forces ($F^A_{bias, i}$) are computed by expression in line \ref{15} and \ref{16} respectively.
+A set of recursive equations in inward sweep computes force and inertial parameters of every segment. The joint torques and external forces acting on the distal segments collectively generates \textit{inertia-dependent acceleration} on the proximal segments~\cite{shakhimardanov2015composable}.
 
 
-\subsection{Outward sweep : Joint torque and link acceleration }
+In line \ref{11}, the combined inertias of segment $i+1$ and joint rotor inertia ($d_{i+1}$) is computed. Matrix $P^A_{i+1}$ is a projection matrix, that projects \textit{articulated body inertia} and \textit{bias forces} to joint subspace~\cite{shakhimardanov2015composable}~\cite{vukcevic2018extending}. In further steps, the algorithm calculates \textit{apparent inertia} (line \ref{13}) represented as $H^a_{i+1}$, which is the inertia contributions from the child segments. And \textit{articulated body inertia} (line \ref{14}) denoted as $H^A_{i}$ is calculated by adding all the apparent inertias. Similarly, apparent ($F^a_{bias, i+1}$) and articulated bias forces ($F^A_{bias, i}$) are computed by expression in line \ref{15} and \ref{16} respectively.
+
+In expression \ref{17}, \textit{constraint force matrix} is computed ($A_i$), in which the term $P_{i+1}^A A_{i+1}$, represents apparent unit constraint forces. Consequently, these constraint forces, external forces and joint torques inclusively generates acceleration energy~\cite{shakhimardanov2015composable}, which is recursively accumulated in matrix $U_i$ (line \ref{18}). Here, $U_i$ is \textit{acceleration energy} matrix expressed in Cartesian space. The expression within curly braces denotes acceleration originated from joint torques, and inertial forces applied at distal joints~\cite{shakhimardanov2015composable}.
+
+The inward recursion also deals with ``\textit{how much of the constraint acceleration energy $b_N$ is already generated by each of the virtual ``unit'' constraint forces $A_N$}~\cite{shakhimardanov2015composable}''. This is represented by $\mathcal{L}_i$ (line \ref{19}) and is called \textit{constraint coupling matrix}, which is of order $m \times m$ ($m$ is number of constraints). More clearly, each rows in $\mathcal{L}_i$ corresponds to acceleration energy generated by the all the constraint forces up until that instance of recursion.
+
+\begin{figure}[h!]
+	\label{fig:sweep}
+	\centering
+	\includegraphics[scale=0.3]{images/sweep.png}
+	\caption{An abstract representation of computational sweeps in a kinematic chain, along with computed physical entities and constraints (source:~\cite{shakhimardanov2015composable})}.	
+\end{figure}
+
+\subsection{Computing constraint force magnitudes, $\nu$}
+
+After reaching the base ($i = 0$), the \textit{constraint force magnitudes} is calculated (line \ref{21}). This expression is obtained after minimizing the Equation \ref{eq:bellman} with respect to $\nu$~\cite{shakhimardanov2015composable}. The term $\ddot{X}_0$ denotes the cartesian acceleration at the base. Since the base is rigidly fixed in a kinematic chain, $\ddot{X}_0$ is equal to acceleration due to gravity. 
+
+It is however important to ensure that the matrix $\mathcal{L}_i$ is of full rank. But this case fails during the redundancy problem. To overcome this situation, ($\mathcal{L}^{-1}$) can be computed using the \textit{damped least squares} method, as mentioned in~\cite{shakhimardanov2015composable}.
+
+\subsection{Outward sweep : Joint torque and link acceleration}
+In the outward sweep, the accelerations to the constrained motion is computed (line \ref{23} and \ref{24})~\cite{shakhimardanov2015composable}. The obtained \textit{constraint force magnitudes} in the previous step are then substituted in the equation given in line \ref{23}. Here, $\ddot{q}_{i+1}$ represents accelerations at the joint $i+1$.
 
 \section{Acceleration constrained dynamics algorithm}
 

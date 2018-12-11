@@ -179,7 +179,7 @@ Furthermore, \textit{bias forces} are determined by the expression in line \ref{
 
 In the line \ref{7} and \ref{8}, \textit{articulated body inertia} and \textit{articulated bias forces} respectively are initialized with \textit{rigid body} quantities. These values are further used in inward sweep.
 
-\subsection{Inward sweep : force and inertia recursions}
+\subsection{Inward sweep : force and inertia recursions} \label{inward-sweep}
 
 A set of recursive equations in inward sweep computes force and inertial parameters of every segment. The joint torques and external forces acting on the distal segments collectively generates \textit{inertia-dependent acceleration} on the proximal segments~\cite{shakhimardanov2015composable}.
 
@@ -206,14 +206,38 @@ It is however important to ensure that the matrix $\mathcal{L}_i$ is of full ran
 \subsection{Outward sweep : Control torques and link accelerations}
 In the outward sweep, the control torques and joint accelerations to the constrained motion are computed (line \ref{23} and \ref{24})~\cite{shakhimardanov2015composable}. After minimizing the equation \ref{eq:bellman} with respect to $\nu$ in previous step, the \textit{constraint force magnitudes} is substituted and solved for joint acceleration $\ddot{q}_i$ in the final outward sweep. As mentioned before, the joint $i+1$ experiences external and Coriolis forces ($F_{bias, i+1}^A$), inertial forces ($H_{i+1}^A\prescript{i+1}{}{X}_i \ddot{X}_i$) and feed-forward torques ($\tau_{i+1}$) from the connected child segments. Corresponding to these quantities, the right hand side equation (line \ref{23}) represents the overall control torque that is required to drive the constrained system~\cite{vukcevic2018extending}.
 
-Reformulating the expression in line \ref{23} and representing the torque components (see equation \ref{eq:jointaccl})~\cite{vukcevic2018extending},
+Reformulating the expression in line \ref{23} and representing the torque components as (see equation \ref{eq:jointaccl})~\cite{vukcevic2018extending},
 \begin{equation}\label{eq:jointaccl}
 	\ddot{q}_{i+1} = D_{i+1}^{-1} \big\{ \overbrace{\strut \tau_{i+1}}^\text{input torque} - \underbrace{ \strut S_{i+1}^T \big(F_{bias, i+1}^A + H_{i+1}^A \big(\prescript{i+1}{}{X}_i \ddot{X}_i + \ddot{X}_{bias, i+1}))}_\text{bias torque} - \overbrace{\strut S_{i+1}^T A_{i+1} \nu}^\text{constraint torque} \big \}
 \end{equation}
 
-In the final step of the algorithm, 
+In the final step of the algorithm, spatial acceleration $\ddot{X}$ is computed (line \ref{24}) by substituting $\ddot{q}$ from the previous step. 
 
-\section{Acceleration constrained dynamics algorithm}
+
+\section{Task Specification}
+
+The Popov-Vereshchagin Hybrid Dynamic solver computes the desired motion of manipulator accounting to the task specification. The inputs to the solver includes three kinds of task definitions - \textit{External force}, \textit{Cartesian acceleration constraints} and \textit{feedforward torque}. This section further explains these task definitions.
+
+\subsection{External forces, $F_{ext}$}
+
+The external forces applied to the end-effector deals with \textit{impedance control} in cartesian space. This impedance control is required to ensure a compliant behavior of end-effector~\cite{albu2002cartesian}. 
+
+
+\subsection{Cartesian acceleration constraints}
+
+The task requirements imposes \textit{Cartesian acceleration constraints} on manipulator motions. There are two distinct types of constraints that can be applied on the segments, they are either \textit{physical} or \textit{virtual}. The \textit{physical} constraints refers to environmental contacts and \textit{virtual} constraints define the desired cartesian accelerations as specified by user~\cite{shakhimardanov2015composable}. 
+
+Consider a manipulator with $N$ segments. The \textit{virtual} constraints are specified in matrix $A_N$ of order $6 \times m$, where $m$ is number of constraints. The columns of the matrix represent direction of constraint forces being applied on end-effector. As mentioned in section \ref{inward-sweep}, the acceleration constraints produces \textit{acceleration energy}, represented by $b_N$. The expression for linear constraints can be written as~\cite{shakhimardanov2015composable},
+\begin{equation}\label{linear-constarint}
+	A_N^T\ddot{X}_N = b_N
+\end{equation}
+
+
+\subsection{Feedforward torque, $\tau$}
+
+
+
+
 
 \section{Conclusion}
 

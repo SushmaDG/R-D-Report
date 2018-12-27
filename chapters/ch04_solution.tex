@@ -10,3 +10,28 @@ Your main contributions go here
 
 
 \section{Implementation details}{........}
+
+\begin{table}[h]
+	
+	\renewcommand{\arraystretch}{2.5}
+	\resizebox{\textwidth}{!}{%
+		\begin{tabular}{| l | l | l | l | l |}
+			\hline
+			\multicolumn{2}{| M{7.5cm}|}{\textbf{Inputs}}    & \multicolumn{3}{M{15cm}|}{\textbf{Outputs}} \\ \hline
+			
+			\textit{\textbf{External force ($F_{ext}$)}} & \textit{\textbf{Joint Torques($\tau$)}} & \textit{\textbf{Joint accelerations ($\Ddot{q}$)}} & \textit{\textbf{Root acceleration}} & \textit{\textbf{Control torques ($\tau_{control}$)}} \\ \hline
+			
+			\begin{tabular}[c]{@{}l@{}}$\gamma = 10$ \\ $[0, 0, 0, 0,  0, 10]$ \end{tabular}   &  $[0, 0, 0, 0, 0, 0, 0, 0]$ &  \begin{tabular}[c]{@{}l@{}} $[-0.651743,   -1.36504, -3.97664,  -1.36552,$ \\ $-3.97664, -1.36552, -0.651743, -1.36504]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}} $\gamma = 1.4962 $ \\  $x = -0.0368095$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.303226, -0, -0.126057, -0,$ \\$ -0.126057, -0, 0.303226, 0]$ \end{tabular} \\ \hline
+			
+			\begin{tabular}[c]{@{}l@{}}$x = 50$ \\ $[50, 0, 0, 0,  0, 0]$ \end{tabular}   &  $[0, 0, 0, 0, 0, 0, 0, 0]$ &  \begin{tabular}[c]{@{}l@{}} $[3.49264, 0.168407, 3.90164    0.168467,$ \\ $3.90164, 0.168467, 3.49264, 0.168407]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}} $\gamma = -0.184047 $ \\  $x = 0.158089$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.243069, -0, 0.238214, -0 ,$ \\ $0.238214, -0, 0.243069, -0]$ \end{tabular} \\ \hline
+			
+			$[0, 0, 0, 0,  0, 0]$  &  \begin{tabular}[c]{@{}l@{}} $\tau_{d_1} = 1.0$ \\ $\tau_{d_2} = 1.0$ \\ $\tau_{d_3} = 1.0$ \\ $\tau_{d_4} = 1.0$  \end{tabular} &  \begin{tabular}[c]{@{}l@{}} $[ 0.329141, 34.0727, 0.549795, 34.0727,$ \\  $0.757357, 34.1083, 0.12158, 34.1082]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}}  $x = 0.0111047$ \\ $y = 0.00467013$ \\ $\gamma = -0.192697$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.0695287, -0, -0.0665266, -0,$ \\ $-0.0539123, -0, 0.0463929, -0]$ \end{tabular} \\ \hline
+			
+			
+			
+		\end{tabular}
+	}\renewcommand{\arraystretch}{3}
+	\caption{Experimental analysis}
+	\label{Decomposition Techniques}
+	
+\end{table}

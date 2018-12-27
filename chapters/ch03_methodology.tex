@@ -182,7 +182,7 @@ The pose from the segment $i$ to $i+1$ is denoted as $\prescript{i+1}{i}{X}$. Th
 \begin{figure}[h!]
 		\label{fig:pose}
 	\centering
-	\includegraphics[scale=0.35]{images/pose.png}
+	\includegraphics[scale=0.33]{images/pose.png}
 	\caption{Proximal and distal segment frames attachment in a generic kinematic chain and transformation between them~\cite{shakhimardanov2015composable}.}
 
 \end{figure}
@@ -210,7 +210,7 @@ The inward recursion also deals with constraint acceleration energy, $b_N$, that
 \begin{figure}[h!]
 	\label{fig:sweep}
 	\centering
-	\includegraphics[scale=0.3]{images/sweep.png}
+	\includegraphics[scale=0.35]{images/sweep.png}
 	\caption{An abstract representation of computational sweeps in a kinematic chain, along with computed physical entities and constraints (source:~\cite{shakhimardanov2015composable})}.	
 \end{figure}
 
@@ -230,33 +230,60 @@ Reformulating the expression in line \ref{23} and representing the torque compon
 
 In the final step of the algorithm, spatial acceleration $\ddot{X}$ is computed (line \ref{24}) by substituting $\ddot{q}$ from the previous step. 
 
+Figure \ref{fig:sweep} describes the computational sweeps in a kinematic chain.
+
 
 \section{Task Specification}
 
 The Popov-Vereshchagin Hybrid Dynamic solver computes the desired motion of manipulator accounting to the task specification. The inputs to the solver includes three kinds of task definitions - \textit{External force}, \textit{Cartesian acceleration constraints} and \textit{feedforward torque}. This section further explains these task definitions.
 
-\subsection{External forces, $F_{ext}$}
+\begin{enumerate}
+	\item \textit{\textbf{External forces} ($F_{ext}$):} \\
+	The external forces (physical or virtual) applied to the end-effector can be used for \textit{impedance control} in Cartesian space~\cite{siciliano2016springer}. The resulting impedance control is required to ensure a compliant behavior of end-effector~\cite{albu2002cartesian}. 
+	
+	\item \textit{\textbf{Cartesian acceleration constraints:}} \\
+	The task requirements imposes \textit{Cartesian acceleration constraints} on manipulator motions. There are two distinct types of constraints that can be applied on the segments - \textit{physical} and \textit{virtual}. The former refers to environmental contacts, whereas the latter defines the desired Cartesian accelerations as specified by the user~\cite{shakhimardanov2015composable}. 
+	
+	Consider a manipulator with $N$ segments. The \textit{virtual} constraints are specified in matrix $A_N$ of order $6 \times m$, where $m$ is number of constraints. The columns of the matrix represent direction of constraint forces being applied on end-effector. As mentioned in section \ref{inward-sweep}, the acceleration constraints produces \textit{acceleration energy}, represented by $b_N$. The expression for linear constraints is given in equation~\ref{eq:constraint1}. For instance, if the user defines partial constraints to restrict the motion of a segment in $x$ and $z$ directions linearly, then the $A_N$ matrix can be written as follows,
+	\begin{equation}\label{eq:A}
+	A_N = 	\begin{bmatrix}
+	0 & 0 \\
+	0 & 0 \\
+	0 & 0 \\
+	1 & 0 \\
+	0 & 0 \\
+	0 & 1 \\
+	\end{bmatrix} 	
+	\end{equation}
+	
+	As the motion is restricted, the accelerations should be $0$ in $x$ and $z$ directions. The acceleration energy vector can be specified as, 
+	
+	\begin{equation} \label{eq:bN}
+	b_N = \begin{bmatrix}
+	0 \\ 
+	0 \\
+	\end{bmatrix}
+	\end{equation}
+	
+	Similarly, acceleration constraints can be defined in all six dimensions. Correspondingly, the acceleration energy vector must be specified. 
+	
+	\item \textit{\textbf{Feedforward torque ($\tau$):}} The input torque is equivalent to joint constraints. This can be used in tasks that require posture control. For instance, in case of manipulators, to remain in a vertical orientation, the joints are provided with feedforward torques~\cite{sentis2005synthesis}.
+	
+	\end{enumerate}
+	
+	In case of a high level task specification, all the three types of task definitions (as explained previous section) are provided as input to the robot controller. The general control scheme including the solver is presented in~\cite{vukcevic2018extending} as,
+	
+	\begin{figure}[h!]
+		\label{fig:control-scheme-solver}
+		\includegraphics[scale=0.5]{images/control-scheme-solver.png}
+		\caption{General control scheme including the Vereshchagin solver (source:~\cite{vukcevic2018extending})}
+	\end{figure}
 
-The external forces applied to the end-effector deals with \textit{impedance control} in Cartesian space. This impedance control is required to ensure a compliant behavior of end-effector~\cite{albu2002cartesian}. 
+\section{Solver Implementation}
+
+The Vereshchagin solver is currently implemented using Kinematics and Dynamics library~\cite{KDLopensource}, by Herman Bruyninckx, Azamat Shakhimardanov and Ruben Smits. The library is an \textit{open source} and the solver is currently built in C++ programming language. 
 
 
-\subsection{Cartesian acceleration constraints}
-
-The task requirements imposes \textit{Cartesian acceleration constraints} on manipulator motions. There are two distinct types of constraints that can be applied on the segments, they are either \textit{physical} or \textit{virtual}. The \textit{physical} constraints refers to environmental contacts and \textit{virtual} constraints define the desired Cartesian accelerations as specified by user~\cite{shakhimardanov2015composable}. 
-
-Consider a manipulator with $N$ segments. The \textit{virtual} constraints are specified in matrix $A_N$ of order $6 \times m$, where $m$ is number of constraints. The columns of the matrix represent direction of constraint forces being applied on end-effector. As mentioned in section \ref{inward-sweep}, the acceleration constraints produces \textit{acceleration energy}, represented by $b_N$. The expression for linear constraints can be written as~\cite{shakhimardanov2015composable},
-\begin{equation}\label{linear-constarint}
-	A_N^T\ddot{X}_N = b_N
-\end{equation}
-
-
-\subsection{Feedforward torque, $\tau$}
-
-
-
-
-
-\section{Conclusion}
 
 %\section{Modeling kinematic tree for Care-O-Bot}{......}
 

@@ -1,14 +1,49 @@
 %!TEX root = ../DevaramaniS-[RnD-MT]Report.tex
 
 \chapter{State of the Art}
-
-
-
 %\section{....}
 %Use as many sections as you need in your related work to group content into logical groups
 %
-%Don't forget to correctly cite your sources \cite{art1}.
+%correctly cite your sources \cite{art1}.
 
+The current state of the art focuses on various approaches to implement complex robot tasks involving robust motions and complex motion primitives. As mentioned earlier (section~\ref{chap:Intro}), the task requirements impose explicit constraints on robot motions. These constraints indicate the desired force or motion to be executed by the robot. It is imperative to consider the dynamic properties of the system to realize these constraints instantaneously and execute the optimal motions. In this section, current state of the art relating to robot dynamic algorithms, task specification formalisms and dynamic solvers are summarized briefly.
+
+\section{Robot dynamics algorithms}
+Robot dynamics deals with the relationship between applied force and produced accelerations in the system~\cite{featherstone2014rigid}. The robot dynamics algorithms refer to numerical computations of quantities associated with dynamics. It is well known that the robot dynamics problem is of two types -  forward and inverse dynamics. The forces applied on any rigid body produces acceleration in the direction of applied force, this is termed as \textit{forward dynamics}. The equation used to solve forward dynamics problem is given by~\cite{featherstone2014rigid},
+\begin{equation}\label{eq:fd}
+	FD \rightarrow M(q)^{-1} (\tau - C(q, \dot{q})) = \ddot{q}
+\end{equation}
+
+where, $M(q)$ stands for inertia matrix represented in joint space and is a function of joint position ($q$). $\tau$ denotes the applied force and $C$ is the Centrifugal and Coriolis forces acting on the system. 
+ The \textit{inverse dynamics} deals with computation of forces required to produce the desired acceleration. The equation used to solve inverse dynamics problem can be formulated as~\cite{vukcevic2018extending}~\cite{featherstone2014rigid},
+
+\begin{equation}
+	\label{eq:ID}
+	ID \rightarrow M(q)\ddot{q} + C(q, \ddot{q}) = \tau
+\end{equation}
+
+The above equation is also termed as \textit{dynamic equation of motion} for rigid body system (further explanation can be found in appendix~\ref{chap:dynamic}). There are several types of robots such as manipulators, mobile robots, aerial robots etc, which are composition of rigid bodies. In this project, to simplify the analysis of robot dynamics, \textit{Spatial notations} are used to represent the system and follows the convention as used in Featherstone~\cite{featherstone2014rigid}. The Spatial notions include 6D vectors describing six degrees of freedom of a single rigid body. 
+
+The applications of forward dynamics can be found mainly in simulation, whereas, inverse dynamics is applied for motion control system~\cite{featherstone1984robot}. However, there are different robot task definitions that requires combination of forward and inverse dynamics. Specifically for applications involving \textit{posture control} (humanoid robots and manipulators), the robot must realize the motion and force constraints instantaneously as imposed by the task requirements. The basic algorithms to solve each of the dynamics problem are listed below,
+\begin{enumerate}
+	\item \textit{Forward dynamics}
+	\begin{itemize}
+		\item \textit{Composite Rigid Body Algorithm (\hyperref[crba]{CRBA})}~\cite{walker1982efficient}: For the given link length, $n < 9$, this method is an efficient algorithm than \hyperref[aba]{ABA}, to compute forward dynamics~\cite{featherstone2000robot}. 
+		\item  \textit{Articulated-Body Algorithm (\hyperref[aba]{ABA})}: The method considers whole system as articulated body and computes the forward dynamics and has \textit{O(n)} computational complexity.
+	\end{itemize}
+	\item \textit{Inverse dynamics}
+	\begin{itemize}
+		\item \textit{Recursive Newton-Euler Algorithm (\hyperref[rnea]{RNEA})}: The algorithm is applied to calculate inverse dynamics of a general kinematic tree~\cite{featherstone2000robot}. It involves two passes - \textit{outward} and \textit{inward}. In outward pass, \textit{velocity} and \textit{acceleration} quantities are computed from base to the leaves and \textit{joint forces} are computed from leaves to the root during inward pass~\cite{featherstone2014rigid}. 
+	\end{itemize}
+	\item \textit{Hybrid dynamics}
+	\begin{itemize}
+		\item \textit{Articulated-Body Hybrid Dynamics Algorithm} - 
+		\item \textit{Popov-Vereshchagin Hybrid Dynamic Algorithm} - 
+	\end{itemize}
+	
+	
+\end{enumerate}
+ 
 The State of the art section discusses the various software frameworks and dynamic solvers employed in robot manipulators to dynamically realize constraints originating from task specification. 
 
 The kinematic and dynamic solvers compute control inputs for a manipulator given the manipulator’s dynamic parameters such as link inertia or joint friction, and external forces acting on the manipulator. They realize the task constraints that originate from task specification. Similarly, a mobile base naturally resembles a partially-constrained floating base. The constrained degrees of freedom of motions are,
@@ -19,7 +54,6 @@ The kinematic and dynamic solvers compute control inputs for a manipulator given
 
 Additionally, each wheel introduces a \textit{Cartesian acceleration constraint} known as the \textit{sliding constraint}. In order to realize these motion constraints in mobile robots, the paper presents an extension to \textbf{Popov-Vereshchagin} hybrid dynamic solver. The solver computes the stabilized control inputs in manipulators, given the task objectives, the motion model of the robot as well as the cost function. The previous methods to address the navigation problem such as path tracking, point-point stabilization etc were controlled at kinematic level. There are few current approaches that explicitly control the robot at a dynamic level. One of the papers addresses the general problem of path tracking in mobile robots by presenting a detailed dynamic model with torque coupling. But the article fails to address the complex inner loop dynamics.
 
-\section{Rigid Body Dynamics}{.......}
 
 \section{Software Frameworks}
 

@@ -2,9 +2,39 @@
 
 \chapter{Extending the Vereshchagin hybrid dynamic solver to mobile robots}
 
+As discussed in State of the art, there are various software frameworks and dynamic solvers employed specifically in manipulators to satisfy the constraints imposed by task requirements. These approaches considers the dynamic properties of the system and compute the desired motion. In case of mobile robots, there are approaches introduced to compute the control commands by considering the dynamics of the robot. However, there are no task specification frameworks or solvers that would provide a better procedure to handle instantaneous task specifications. Therefore, the main objective of the project is to 
+extend and apply the \textit{Popov-Vereshchagin hybrid dynamic solver} to mobile robots. 
 
 
-Your main contributions go here
+The main feature of the solver is that, given the task requirements, it calculates the instantaneous joint accelerations and control torques of a single end-effector. However, this can be extended to compute the desired motion of multiple end-effectors~\cite{shakhimardanov2015composable}. An autonomous mobile robot can be modeled as kinematic tree structure with wheels as end-effectors. Following sections describe extensions to tree structure and how the extended algorihtm can be applied to mobile robot.
+
+
+\section{Extension to kinematic trees}
+
+A theoretical description on extension of the solver to multiple end-effectors (kinematic tree structure), is presented by author Azamat Shakhimardanov in his dissertation~\cite{shakhimardanov2015composable}. The  conceptual and algorithmic explanation of this extension in each of the computational sweeps is presented below.
+
+\subsection{Initial outward sweep}
+The computations in outward sweep remains unchanged except the way of recursion. For a simple serial chain, the outward sweep is a single path from base to end-effector. This remains the same for kinematic tree structure as well, but the recursion must traverse to all the respective end-effectors~\cite{shakhimardanov2015composable}. 
+
+In the Constrained hybrid dynamics algorithm (\ref{Algorithm1}), the initial outward sweep loops from $i=0$ (base) to $N-1$ (end-effector). The recursion must be changed to traverse from base to all the tree elements.
+
+\subsection{Inward sweep}
+The main modifications in inward sweep includes~\cite{shakhimardanov2015composable},
+\begin{itemize}
+	\item The apparent inertias ($H^a$) and forces ($F^a$) of parent segment must combine all the articulated inertias and forces computed by the child segments.
+	\item The constraint force matrix ($A$), must combine the constraints applied at each of the end-effectors. Hence, the matrix will be expanded column-wise.
+	\item The acceleration energy ($b_N$) is accumulated corresponding to the constraints arising from each of the end-effectors. 
+	\item The acceleration constraint coupling matrix ($\mathcal{L}$) is extended to inc
+\end{itemize}
+
+\subsection{Resolving constraints at the base}
+
+
+\subsection{Final outward sweep}
+
+The main aim of the project is to extend the \textit{Popov-Vereshchagin hybrid dynamic solver} to mobile robots. 
+
+\section{Mobile Robots as Kinematic tree structure}
 
 \section{Extended algorithm}{.......}
 

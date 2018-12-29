@@ -29,7 +29,7 @@ The applications of forward dynamics can be found mainly in simulation, whereas,
 	\item \textit{Forward dynamics}
 	\begin{itemize}
 		\item \textit{Composite Rigid Body Algorithm (\hyperref[crba]{CRBA})}~\cite{walker1982efficient}: For the given link length, $n < 9$, this method is an efficient algorithm than \hyperref[aba]{ABA}, to compute forward dynamics~\cite{featherstone2000robot}. 
-		\item  \textit{Articulated-Body Algorithm (\hyperref[aba]{ABA})}: The method considers whole system as articulated body and computes the forward dynamics and has \textit{O(n)} computational complexity.
+		\item  \textit{Articulated-Body Algorithm (\hyperref[aba]{ABA})}: The method considers whole system as articulated body and computes the forward dynamics. It has \textit{O(n)} computational complexity.
 	\end{itemize}
 	\item \textit{Inverse dynamics}
 	\begin{itemize}
@@ -37,29 +37,61 @@ The applications of forward dynamics can be found mainly in simulation, whereas,
 	\end{itemize}
 	\item \textit{Hybrid dynamics}
 	\begin{itemize}
-		\item \textit{Articulated-Body Hybrid Dynamics Algorithm} - 
-		\item \textit{Popov-Vereshchagin Hybrid Dynamic Algorithm} - 
+		\item \textit{Articulated-Body Hybrid Dynamics Algorithm} - An articulated-body algorithm applied to perform combined forward and inverse-dynamics. 
+		\item \textit{Popov-Vereshchagin Hybrid Dynamic Algorithm} - applied mainly to kinematic chain to solve hybrid dynamics problem (further description is provided in Chapter \ref{chap:solver}).  
 	\end{itemize}
 	
-	
 \end{enumerate}
- 
-The State of the art section discusses the various software frameworks and dynamic solvers employed in robot manipulators to dynamically realize constraints originating from task specification. 
 
-The kinematic and dynamic solvers compute control inputs for a manipulator given the manipulator’s dynamic parameters such as link inertia or joint friction, and external forces acting on the manipulator. They realize the task constraints that originate from task specification. Similarly, a mobile base naturally resembles a partially-constrained floating base. The constrained degrees of freedom of motions are,
-\begin{itemize}
-	\item linear acceleration perpendicular to the ground;
-	\item angular acceleration about the two axes that are parallel to the ground.
-\end{itemize}
+All these algorithms can also be extended to \textit{floating bases}, by converting floating-base system to fixed-base system~\cite{featherstone2014rigid}. Here, floating base is a rigid-body system, whose base is not fixed. Examples of floating bases are, mobile robots, mobile manipulators etc. 
 
-Additionally, each wheel introduces a \textit{Cartesian acceleration constraint} known as the \textit{sliding constraint}. In order to realize these motion constraints in mobile robots, the paper presents an extension to \textbf{Popov-Vereshchagin} hybrid dynamic solver. The solver computes the stabilized control inputs in manipulators, given the task objectives, the motion model of the robot as well as the cost function. The previous methods to address the navigation problem such as path tracking, point-point stabilization etc were controlled at kinematic level. There are few current approaches that explicitly control the robot at a dynamic level. One of the papers addresses the general problem of path tracking in mobile robots by presenting a detailed dynamic model with torque coupling. But the article fails to address the complex inner loop dynamics.
+A robotic system is subjected to \textit{constraints}, which can either be imposed by environmental contacts (\textit{physical constraints}) or task requirements (\textit{artificial constraints}). Considering these constraints, the dynamic equation of motion is reformulated as~\cite{shakhimardanov2015composable},
 
+\begin{equation}\label{eq:contact}
+M(q)\ddot{q} + C(q, \ddot{q}) = \tau - \tau_c
+\end{equation}
+
+where, $\tau_c$ is constraint force vector and is subjected to \textit{holonomic position constraint}, $h(q) = 0$. However, the obtained equation is not optimal. Chapter \ref{chap:solver} explains solver that computes optimal solution to the equation \ref{eq:contact}.
+
+%In development of robots, the software realization of algorithms is important. There are various simulation approaches used to examine the required results. Similarily, to implement the 
+%
+%Software realization of these algorithm is also important to simulate or implement on the real robots. Therefore, various approaches were introduced
 
 \section{Software Frameworks}
 
-\subsection{Task Frame Formalism (TFF)}
+This section discusses primitive software frameworks implemented in the area of robot manipulators to handle the constraints originating from task requirements.
 
-TFF is an intuitive programming framework for manipulator applications. It is part of the robot control architecture to transform the high-level commands to unambiguous low-level control parameters current approaches aim at executing complex robot tasks by specifying various compliant motion commands for manipulators. These high-level commands have to be interpreted as atomic robot actions, i.e. no further subdivision is possible. The implementations are primarily focused in the field of the robot manipulator. Manipulation primitives can be linked together to a sequence or complex nets, which describe a robot task. By the execution of these primitives, a huge variety of very complex robot tasks can be covered [3]-[6]. \\ 
+{\color{red}The State of the art section discusses the various software frameworks and dynamic solvers employed in robot manipulators to dynamically realize constraints originating from task specification. 
+	
+	The kinematic and dynamic solvers compute control inputs for a manipulator given the manipulator’s dynamic parameters such as link inertia or joint friction, and external forces acting on the manipulator. They realize the task constraints that originate from task specification. Similarly, a mobile base naturally resembles a partially-constrained floating base. The constrained degrees of freedom of motions are,
+	\begin{itemize}
+		\item linear acceleration perpendicular to the ground;
+		\item angular acceleration about the two axes that are parallel to the ground.
+	\end{itemize}
+	
+	Additionally, each wheel introduces a \textit{Cartesian acceleration constraint} known as the \textit{sliding constraint}. In order to realize these motion constraints in mobile robots, the paper presents an extension to \textbf{Popov-Vereshchagin} hybrid dynamic solver. The solver computes the stabilized control inputs in manipulators, given the task objectives, the motion model of the robot as well as the cost function. The previous methods to address the navigation problem such as path tracking, point-point stabilization etc were controlled at kinematic level. There are few current approaches that explicitly control the robot at a dynamic level. One of the papers addresses the general problem of path tracking in mobile robots by presenting a detailed dynamic model with torque coupling. But the article fails to address the complex inner loop dynamics. }
+
+
+\subsection{Task Frame Formalism (\hyperref[tff]{TFF})}
+
+Task frame formalism is partly robot control architecture that executes compliant motion in manipualtors~\cite{kroger2004compliant},~\cite{mason1981compliance}~\cite{de1988compliant}. The quantities required to specify a compliant motion task in \hyperref[tff]{TFF} is as follows~\cite{kroger2004compliant},
+\begin{equation}\label{eq:tff}
+	\mathcal{TF} := \big\{ \bar{\mathcal{P}}, RF, ANC \big\}
+\end{equation}
+
+where, $\bar{\mathcal{P}}$ is pose of \textit{task frame} expressed in \textit{reference frame} (RF).
+\begin{itemize}
+	\item Defining the \textit{pose} of task frame
+	\item Specifying position and force controlled directions
+	\item Target position and force represented in task frame
+\end{itemize}
+
+The \textit{task frames} refers to dynamic frame defined with respect to another object in task and has its own trajectory as the assigned object. The \textit{task frame} refers to dynamic frame expressed in 
+
+There are two ways to specify compliant task configuration, position/velocity controlled and force controlled~\cite{mason1981compliance}~\cite{de1988compliant}.
+
+There is a fixed relation between end-effector and task frame.    
+{\color{green} 
 Within this framework, the whole space of possible task directions can be divided into two orthogonal subspaces: one composed of force-controlled directions (position-constrained), and the other that represents velocity-controlled directions (force-constrained). A great number of tasks can be performed within this framework. The only condition is that it must be possible to decompose the task into force and velocity- controlled directions. \\ 
 
 The drawback of the task frame approach is that it only applies to task geometries for which separate control modes can be assigned independently to three pure translational and three pure rotational directions along the axes of a single frame. A more systematic approach is to assign control modes and corresponding constraints to arbitrary directions in the six-dimensional manipulation space.
@@ -105,4 +137,4 @@ The iTaSC concepts apply to specifications in the robot, Cartesian and sensor sp
 \item Stack Of Tasks(SOT)
 \end{itemize}
 
-
+}

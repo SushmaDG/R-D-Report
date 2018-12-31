@@ -41,7 +41,7 @@ As previously mentioned, the solver minimizes the Gauss function to compute the 
 % The Gauss function to be minimized by the solver is \cite{vereshchagin1989modeling},
 % 
  \begin{equation} \label{eq:gauss}
-	Z = \min_{\ddot{q}} \Big \{\sum_{i=0}^{N} \frac{1}{2} \ddot{X_i}^T H_i \ddot{X_i} + F_{bias, i}^T\ddot{X_i} + \sum_{i=1}^{N} \frac{1}{2} d_i \ddot{q_i}^2 - \tau_i \ddot{q_i} \Big \}
+	\mathcal{Z} = \min_{\ddot{q}} \Big \{\sum_{i=0}^{N} \frac{1}{2} \ddot{X_i}^T H_i \ddot{X_i} + F_{bias, i}^T\ddot{X_i} + \sum_{i=1}^{N} \frac{1}{2} d_i \ddot{q_i}^2 - \tau_i \ddot{q_i} \Big \}
  \end{equation} 
 \hspace{70pt}\textit{subject to,}
 \begin{equation} \label{eq:constraint1}
@@ -51,9 +51,24 @@ A_N^T \ddot{X}_N = b_N
 \ddot{X}_{i+1} = \prescript{i+1}{}{X}_i \ddot{X}_i + \ddot{q}_{i+1} S_{i+1} + \ddot{X}_{bias, i+1}
 \end{equation} 
 
- This Gauss function (Z) is subjected to linear constraints given by \cite{shakhimardanov2015composable},
+ This Gauss function ($\mathcal{Z}$) is subjected to linear constraints given by \cite{shakhimardanov2015composable},
  
- In the equation \ref{eq:gauss},  $Z$ is the acceleration energy of the kinematic chain, also called as \textit{Zwang} \cite{shakhimardanov2015composable}.  The function $Z$ is minimized with respect to joint accelerations, $\ddot{q}$. $\ddot{X}_i$ represents 6 x 1 constrained Cartesian acceleration vector of segment $i$, expressed in Pl{\"u}cker coordinates (See the appendix section \autoref{chap:plucker}). $H_i$ is the Cartesian space rigid body inertia matrix. $F_{bias, i}^T$ is a vector of bias forces (i.e., external forces, Coriolis and centrifugal forces) acting on segment $i$. 
+ In the equation \ref{eq:gauss},  $\mathcal{Z}$ is the acceleration energy of the kinematic chain, also called as \textit{Zwang} \cite{shakhimardanov2015composable}.  The function $\mathcal{Z}$ is minimized with respect to joint accelerations, $\ddot{q}$. $\ddot{X}_i$ represents 6 x 1 constrained Cartesian acceleration vector of segment $i$, expressed in Pl{\"u}cker coordinates. It is given as~\cite{featherstone2014rigid},
+ \begin{equation}\label{eq:plucker}
+	 \ddot{X} = \begin{bmatrix}
+		 \dot{v}_x \\
+		 \dot{v}_y \\
+		 \dot{v}_z \\
+		 \dot{\omega}_x \\
+		 \dot{\omega}_y \\
+		 \dot{\omega}_z \\
+	 \end{bmatrix}
+ \end{equation}
+ 
+ The spatial acceleration vector comprises of linear acceleration (first three elements) and angular accelerations (last three elements). 
+ 
+ 
+ Further, $H_i$ is the Cartesian space rigid body inertia matrix. $F_{bias, i}^T$ is a vector of bias forces (i.e., external forces, Coriolis and centrifugal forces) acting on segment~$i$. 
  
  The equation \ref{eq:constraint1} corresponds to Cartesian acceleration constraints in which $A_N$ is a matrix of order 6 x $m$ with $m$ as the number of constraints. The columns of the matrix represents the direction of constraint forces imposed on the end-effector. $b_N$ is a vector of order $m$ x 1 and is called acceleration energy set-point. In addition to Cartesian constraints, the kinematic chain structure is subjected to joint constraints given by equation \ref{eq:constraint2}. Here, $\prescript{i+1}{}{X}_i$ is a homogeneous transformation matrix, that transforms Cartesian acceleration vector ($\ddot{X}_{i+1}$) with respect to $\ddot{X}_i$. The term $S_{i+1}$ denotes \textit{motion subspace matrix} that maps from Joint space to Cartesian space. Contrarily, $S^T$ maps from Cartesian to Joint space.
 % The units of $b_N$ is \textit{acceleration times force}.\\
@@ -77,11 +92,11 @@ A_N^T \ddot{X}_N = b_N
 The Vereshchagin solver is domain-specific, since it exploits the kinematic chain structure. Evaluating for a possible minimum solution to the function \ref{eq:gauss}, in presence of certain linear constraints is termed as \textit{constrained optimization problem}. The equation is thus extended to \cite{shakhimardanov2015composable}, 
 
  \begin{equation} \label{eq:minimization}
- Z = \min_{\ddot{q}} \Big \{\sum_{i=0}^{N} \frac{1}{2} \ddot{X_i}^T H_i \ddot{X_i} + F_{bias, i}^T\ddot{X_i} + \sum_{i=1}^{N} \frac{1}{2} d_i \ddot{q_i}^2 - \tau_i \ddot{q_i} + \nu_T A^T_N \ddot{X}_N \Big \}
+ \mathcal{Z} = \min_{\ddot{q}} \Big \{\sum_{i=0}^{N} \frac{1}{2} \ddot{X_i}^T H_i \ddot{X_i} + F_{bias, i}^T\ddot{X_i} + \sum_{i=1}^{N} \frac{1}{2} d_i \ddot{q_i}^2 - \tau_i \ddot{q_i} + \nu_T A^T_N \ddot{X}_N \Big \}
  \end{equation} 
-Since the equation \ref{eq:gauss} is subjected to equality constraints (equation \ref{eq:constraint1} and \ref{eq:constraint2}), the quadratic function $Z$ is minimized by applying the method of Lagrange multipliers \cite{bertsekas2014constrained}. Here, $\nu$ is the non-negative \textit{Lagrange multiplier}. In further steps, the solver is derived based on the \textit{Bellman's principle of optimality}~\cite{bertsekas1996dynamic}~\cite{bellman2013dynamic}. The equation is reformulated  as~\cite{shakhimardanov2015composable},
+Since the equation \ref{eq:gauss} is subjected to equality constraints (equation \ref{eq:constraint1} and \ref{eq:constraint2}), the quadratic function $\mathcal{Z}$ is minimized by applying the method of Lagrange multipliers \cite{bertsekas2014constrained}. Here, $\nu$ is the non-negative \textit{Lagrange multiplier}. In further steps, the solver is derived based on the \textit{Bellman's principle of optimality}~\cite{bertsekas1996dynamic}~\cite{bellman2013dynamic}. The equation is reformulated  as~\cite{shakhimardanov2015composable},
  \begin{equation} \label{eq:bellman}
- Z_{i-1}(\ddot{X}_{i-1}, \nu) = \min_{\ddot{q}} \Big \{ \frac{1}{2} \ddot{X}_{i-1}^T H_{i-1} \ddot{X_{i-1}} + U_i^T\ddot{X_i} + \frac{1}{2} d_i \ddot{q_i}^2 - \tau_i \ddot{q_i} + Z_i(\ddot{X}_i, \nu)\Big \}
+ \mathcal{Z}_{i-1}(\ddot{X}_{i-1}, \nu) = \min_{\ddot{q}} \Big \{ \frac{1}{2} \ddot{X}_{i-1}^T H_{i-1} \ddot{X_{i-1}} + U_i^T\ddot{X_i} + \frac{1}{2} d_i \ddot{q_i}^2 - \tau_i \ddot{q_i} + \mathcal{Z}_i(\ddot{X}_i, \nu)\Big \}
  \end{equation} 
  
  On further solving the equation \ref{eq:bellman} and minimizing with respect to $\ddot{q}$ will yield the solution to a constrained dynamics problem, which is of the form~\cite{shakhimardanov2015composable}, 
@@ -204,7 +219,7 @@ A set of recursive equations in inward sweep computes force and inertial paramet
 
 In line \ref{11}, the combined inertias of segment $i+1$ and joint rotor inertia ($d_{i+1}$) is computed. Matrix $P_{i+1}$ is a projection matrix, that projects \textit{articulated body inertia} and \textit{bias forces} over joint subspace~\cite{shakhimardanov2015composable}~\cite{vukcevic2018extending}. In further steps, the algorithm calculates \textit{apparent inertia} (line \ref{13}) represented as $H^a_{i+1}$, which is the inertia contributions from the child segments. And \textit{articulated body inertia} (line \ref{14}) denoted as $H^A_{i}$ is calculated by adding all the apparent inertias. Similarly, apparent ($F^a_{bias, i+1}$) and articulated bias forces ($F^A_{bias, i}$) are computed by expression in line \ref{15} and \ref{16} respectively.
 
-In expression \ref{17}, \textit{constraint force matrix} is computed ($A_i$), in which the term $P_{i+1} A_{i+1}$, represents apparent unit constraint forces. Consequently, these constraint forces, external forces and joint torques inclusively generates acceleration energy~\cite{shakhimardanov2015composable}, which is recursively accumulated in matrix $U_i$ (line \ref{18}). Here, $U_i$ is \textit{acceleration energy} matrix expressed in Cartesian space. The expression within curly braces denotes acceleration originated from joint torques, and inertial forces applied at distal joints~\cite{shakhimardanov2015composable}.
+In expression \ref{17}, \textit{constraint force matrix} is computed ($A_i$), in which the term $P_{i+1} A_{i+1}$, represents apparent unit constraint forces. Consequently, these constraint forces, external forces and joint torques inclusively generates acceleration energy~\cite{shakhimardanov2015composable}, which is recursively accumulated in vector $U_i$ (line \ref{18}). Here, $U_i$ is \textit{desired acceleration energy} vector expressed in Cartesian space. The expression within curly braces denotes acceleration originated from joint torques, and inertial forces applied at distal joints~\cite{shakhimardanov2015composable}.
 
 The inward recursion also deals with constraint acceleration energy, $b_N$, that is produced by corresponding columns of constraint forces, $A_N$~\cite{shakhimardanov2015composable}. This is represented by $\mathcal{L}_i$ (line \ref{19}) and is called \textit{constraint coupling matrix}, which is of order $m \times m$ ($m$ is number of constraints). More clearly, each rows in $\mathcal{L}_i$ corresponds to acceleration energy generated by all the constraint forces and accelerations, up until that instance of recursion.
 
@@ -215,7 +230,7 @@ The inward recursion also deals with constraint acceleration energy, $b_N$, that
 	\caption{An abstract representation of computational sweeps in a kinematic chain, along with computed physical entities and constraints (source:~\cite{shakhimardanov2015composable})}.	
 \end{figure}
 
-\subsection{Computing constraint force magnitudes, $\nu$}
+\subsection{Computing constraint force magnitudes, $\nu$} \label{sec:computing-constraints}
 
 After reaching the base ($i = 0$), the \textit{constraint force magnitudes} are calculated (line \ref{21}). This expression is obtained after minimizing the Equation \ref{eq:bellman} with respect to $\nu$~\cite{shakhimardanov2015composable}. The constraint force magnitude is a scaling factor that is computed by ratio of generated acceleration energy ($\mathcal{L}_0$) to required acceleration energy, ($b_N -  A_0^T \ddot{X}_0 - U_0 $). The term $\ddot{X}_0$ denotes the Cartesian acceleration at the base. Since the base is rigidly fixed in a kinematic chain, $\ddot{X}_0$ is equal to acceleration due to gravity. 
 

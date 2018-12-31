@@ -19,9 +19,6 @@ M(q)\ddot{q} = \tau_a(q) - \tau_c(q) -  C(q, \dot{q})
 
 In the above equation, $\tau_a$ represents input forces and $\tau_c$ is the constraint forces from the task specification.
 
-\chapter{Pl{\"u}cker Notations for Spatial vectors}\label{chap:plucker}
-
-The Pl{\"u}cker notations  ................. in FeatherStone
 
 \chapter{Pl{\"u}cker Notations for Spatial cross products}\label{chap:cross}
 
@@ -60,3 +57,33 @@ In this section, the notations used to represent coordinate transformation matri
 
 These transforms are related by the following equation \cite{featherstone2014rigid},
 $$ \prescript{i+1}{}{X}_i^* = \prescript{i+1}{}{X}_i^{-T}$$
+
+\chapter{Kinematic Tree}
+
+A Kinematic tree comprises of interlinked segments. The \hyperref[kdl]{KDL} library provides a kinematic tree representation. Here, a single segments (KDL::Segment) is described as following~\cite{kinematictreeKDL},
+
+\begin{figure}[h!]
+	\label{fig:segment}
+	\begin{center}
+		\includegraphics[scale=0.3]{images/segment}
+	\end{center}
+	\caption{KDL Segment}
+\end{figure} 
+
+The above figure represents a KDL segment composing of four frames,
+\begin{enumerate}
+	\item $F_{reference}$: A \textit{reference} frame (black colored frame) with respect to which other frames are expressed.
+	\item $F_{joint}$: A one DOF \textit{joint} frame (red) expressed about joint axis. The orientation of the frame is same as $F_{reference}$ and translation is given by $p_{origin, a}$.
+	\item $F_{inertia}$: A \textit{rotational inertia frame} (green) expressed with respect to \textit{tip frame} and $p_{inertia, a}$ is the translation vector. The frame is defined under KDL::RigidBodyInertia library.
+	\item $F_{tip}$: Frame attached at the tip of a segment. As seen in the figure \ref{fig:segment}, $F_{tip, a}$ is defined with respect to joint frame (blue) and transformation is given by $T_{tip, a}$ (by default: $T_{tip, a}$ is identity transformation). 
+\end{enumerate}
+
+A Kinematic tree is composition of branched KDL segments. The succeeding segment is attached to tip frame of the preceding frame.
+
+\begin{figure}[h!]
+	\label{fig:kinematic-tree}
+	\begin{center}
+		\includegraphics[scale=0.3]{images/kinematic-tree}
+	\end{center}
+	\caption{Kinematic tree representation in KDL}
+\end{figure}

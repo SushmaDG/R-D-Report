@@ -24,44 +24,97 @@ The main modifications in inward sweep includes~\cite{shakhimardanov2015composab
 	\item The apparent inertias ($H^a$) and forces ($F^a$) of parent segment must combine all the articulated inertias and forces computed by the child segments.
 	\item The constraint force matrix ($A$), must combine the constraints applied at each of the end-effectors. Hence, the matrix will be expanded column-wise.
 	\item The acceleration energy ($b_N$) is accumulated corresponding to the constraints arising from each of the end-effectors. 
-	\item The acceleration constraint coupling matrix ($\mathcal{L}$) is extended to inc
+	\item At the branching point, the constraints from each of the child segments must be joined into the acceleration constraint coupling matrix ($\mathcal{L}$). The matrix expands block-wise with the increase in number of constraints. Consider a three different dimensional constraint joined at the branching point, the resulting $\mathcal{L}$ matrix is~\cite{shakhimardanov2015composable},
+	\begin{equation}
+		\label{eq:L-matrix}
+		\mathcal{L} = \begin{pmatrix}
+		\mathcal{L}^k & 0 & 0\\
+		0 & \mathcal{L}^l & 0\\
+		0 & 0 & \mathcal{L}^m 
+		\end{pmatrix}
+	\end{equation} 
+	In the above matrix, $k, l$ and $m$ are dimensions of constraints arising from each of the sub-chains. $\mathcal{L}^k, \mathcal{L}^l$ and $\mathcal{L}^m$ are constraint coupling matrices of respective sub-chains. 
 \end{itemize}
 
 \subsection{Resolving constraints at the base}
 
+As explained in the section \ref{sec:computing-constraints}, the Gauss function, $\mathcal{Z}$ is minimized by applying the method of Lagrange multipliers. This results in constraint force magnitudes $\nu$ that corresponds to the acceleration constraints applied at the end-effector. But in case of tree structure, there are multiple end-effectors and corresponding constraint magnitudes must be computed. 
+
+
+%The constraint calculation for a fixed base is given in the algorithm \ref{Algorithm1} in line \ref{21}. Here, the \textit{constraint force magnitudes} are calculated in a single step. However, in the case of kinematic tree, the constraint magnitudes corresponding to individual end-effectors must be calculated. 
+
+{\color{red} citation here........}
+
+\begin{equation}\label{eq:U}
+	U_0^A = U_{bias, 0}^A + U_{tau, 0}^A + U_{qdd, 0}^A + U_{ext, 0}^A - b_N 
+\end{equation}
+
+\begin{equation}\label{eq:nu-float}
+	\nu_{float} = \big[ (A_0^A)^T (H_0^A)^{-1} A_0^A - \mathcal{L}_0^A \big]^{-1} \big[ U_0^A - (A_0^A)^T (H_0^A)^{-1} F_{bias, 0}^A \big]
+\end{equation}
+
+
+The constraint calculation for a fixed base is given in the algorithm \ref{Algorithm1} (expression in line \ref{21}). For a floating base, $\nu$ cannot be directly calculated since the base acceleration is unknown. The constraint magnitudes are computed using the expression \ref{eq:nu-float}. Here, $A_0^A$ is a extended constraint force matrix for all the end-effector constraints expressed in root coordinates. $H_0^A$ is \textit{articulated-body inertia} denoted in Pl{\"u}ker coordinates. It is given by~\cite{featherstone2014rigid},
+
+\begin{equation}
+	\label{eq:RBI}
+	H_0^A = \begin{pmatrix}
+		I_0 & H_0 \\
+		H_0^T & M_0
+	\end{pmatrix}
+\end{equation}
+
+The notation $\mathcal{L}_0$ is acceleration coupling matrix expressed as \ref{eq:L-matrix} for given number of constraints. Further, the desired acceleration energy vector ($U_0^A$) expressed at root coordinates is given by \ref{eq:U}, where $b_N$ is the respective constraint acceleration energy vector. 
+
+
+In case of kinematic chain structure, the base is fixed. Hence the root acceleration is equal to acceleration due to gravity (expression \ref{eq:acc}). 
+\begin{equation}
+	\label{eq:acc}
+	\ddot{X}_0 = -\ddot{X}_g
+\end{equation}
+
+In case of a free floating base (for example: mobile robots, orbiting spacecraft) the base acceleration can be computed by~\cite{vereshchagin1989modeling}. 
+
+\begin{equation}\label{eq:cartesian-acceleration}
+\ddot{X}_{float, 0} = -(H_0^A)^{-1} (F_{bias, 0}^A + A_0^A  \nu_{float})
+\end{equation}
+
 
 \subsection{Final outward sweep}
+The computations in final outward sweep remains the same, besides the recursion, which must traverse from root to all the end-effectors. The calculated $\nu_{float}$ is substituted in expression $\ref{23}$ and joint accelerations $(\ddot{q})$ are computed. Further in line $\ref{24}$, Cartesian acceleration is calculated.
 
-The main aim of the project is to extend the \textit{Popov-Vereshchagin hybrid dynamic solver} to mobile robots. 
-
-\section{Mobile Robots as Kinematic tree structure}
-
-\section{Extended algorithm}{.......}
+\section{Conclusion}
+The \textit{Vereshchagin solver} is exercised in robot manipulators to evaluate hybrid dynamics problem. \cite{KDLopensource} The algorithm has been implemented using \hyperref[kdl]{KDL} library (open-source), by Ruben Smits, Herman Bruyninckx, and Azamat Shakhimardanov~\cite{KDLopensource}. The \hyperref[kdl]{KDL} provides a framework to model and compute solutions to kinematics and dynamics problem. The real-time code that implements solver on manipulator is provided and maintained under \textit{Orocos (Open Robot Control Software) Project} and is written in C++ programming language. The approach that extend and apply the algorithm to mobile robots is described in the next chapter. 
 
 
-\section{Implementation details}{........}
-
-\begin{table}[h]
-	
-	\renewcommand{\arraystretch}{2.5}
-	\resizebox{\textwidth}{!}{%
-		\begin{tabular}{| l | l | l | l | l |}
-			\hline
-			\multicolumn{2}{| M{7.5cm}|}{\textbf{Inputs}}    & \multicolumn{3}{M{15cm}|}{\textbf{Outputs}} \\ \hline
-			
-			\textit{\textbf{External force ($F_{ext}$)}} & \textit{\textbf{Joint Torques($\tau$)}} & \textit{\textbf{Joint accelerations ($\Ddot{q}$)}} & \textit{\textbf{Root acceleration}} & \textit{\textbf{Control torques ($\tau_{control}$)}} \\ \hline
-			
-			\begin{tabular}[c]{@{}l@{}}$\gamma = 10$ \\ $[0, 0, 0, 0,  0, 10]$ \end{tabular}   &  $[0, 0, 0, 0, 0, 0, 0, 0]$ &  \begin{tabular}[c]{@{}l@{}} $[-0.651743,   -1.36504, -3.97664,  -1.36552,$ \\ $-3.97664, -1.36552, -0.651743, -1.36504]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}} $\gamma = 1.4962 $ \\  $x = -0.0368095$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.303226, -0, -0.126057, -0,$ \\$ -0.126057, -0, 0.303226, 0]$ \end{tabular} \\ \hline
-			
-			\begin{tabular}[c]{@{}l@{}}$x = 50$ \\ $[50, 0, 0, 0,  0, 0]$ \end{tabular}   &  $[0, 0, 0, 0, 0, 0, 0, 0]$ &  \begin{tabular}[c]{@{}l@{}} $[3.49264, 0.168407, 3.90164    0.168467,$ \\ $3.90164, 0.168467, 3.49264, 0.168407]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}} $\gamma = -0.184047 $ \\  $x = 0.158089$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.243069, -0, 0.238214, -0 ,$ \\ $0.238214, -0, 0.243069, -0]$ \end{tabular} \\ \hline
-			
-			$[0, 0, 0, 0,  0, 0]$  &  \begin{tabular}[c]{@{}l@{}} $\tau_{d_1} = 1.0$ \\ $\tau_{d_2} = 1.0$ \\ $\tau_{d_3} = 1.0$ \\ $\tau_{d_4} = 1.0$  \end{tabular} &  \begin{tabular}[c]{@{}l@{}} $[ 0.329141, 34.0727, 0.549795, 34.0727,$ \\  $0.757357, 34.1083, 0.12158, 34.1082]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}}  $x = 0.0111047$ \\ $y = 0.00467013$ \\ $\gamma = -0.192697$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.0695287, -0, -0.0665266, -0,$ \\ $-0.0539123, -0, 0.0463929, -0]$ \end{tabular} \\ \hline
-			
-			
-			
-		\end{tabular}
-	}\renewcommand{\arraystretch}{3}
-	\caption{Experimental analysis}
-	\label{Decomposition Techniques}
-	
-\end{table}
+%\section{Mobile Robots as Kinematic tree structure}
+%
+%For the approach presented in this project, the solver is extended to mobile robots. 
+%
+%
+%\section{Implementation details}{........}
+%
+%\begin{table}[h]
+%	
+%	\renewcommand{\arraystretch}{2.5}
+%	\resizebox{\textwidth}{!}{%
+%		\begin{tabular}{| l | l | l | l | l |}
+%			\hline
+%			\multicolumn{2}{| M{7.5cm}|}{\textbf{Inputs}}    & \multicolumn{3}{M{15cm}|}{\textbf{Outputs}} \\ \hline
+%			
+%			\textit{\textbf{External force ($F_{ext}$)}} & \textit{\textbf{Joint Torques($\tau$)}} & \textit{\textbf{Joint accelerations ($\Ddot{q}$)}} & \textit{\textbf{Root acceleration}} & \textit{\textbf{Control torques ($\tau_{control}$)}} \\ \hline
+%			
+%			\begin{tabular}[c]{@{}l@{}}$\gamma = 10$ \\ $[0, 0, 0, 0,  0, 10]$ \end{tabular}   &  $[0, 0, 0, 0, 0, 0, 0, 0]$ &  \begin{tabular}[c]{@{}l@{}} $[-0.651743,   -1.36504, -3.97664,  -1.36552,$ \\ $-3.97664, -1.36552, -0.651743, -1.36504]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}} $\gamma = 1.4962 $ \\  $x = -0.0368095$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.303226, -0, -0.126057, -0,$ \\$ -0.126057, -0, 0.303226, 0]$ \end{tabular} \\ \hline
+%			
+%			\begin{tabular}[c]{@{}l@{}}$x = 50$ \\ $[50, 0, 0, 0,  0, 0]$ \end{tabular}   &  $[0, 0, 0, 0, 0, 0, 0, 0]$ &  \begin{tabular}[c]{@{}l@{}} $[3.49264, 0.168407, 3.90164    0.168467,$ \\ $3.90164, 0.168467, 3.49264, 0.168407]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}} $\gamma = -0.184047 $ \\  $x = 0.158089$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.243069, -0, 0.238214, -0 ,$ \\ $0.238214, -0, 0.243069, -0]$ \end{tabular} \\ \hline
+%			
+%			$[0, 0, 0, 0,  0, 0]$  &  \begin{tabular}[c]{@{}l@{}} $\tau_{d_1} = 1.0$ \\ $\tau_{d_2} = 1.0$ \\ $\tau_{d_3} = 1.0$ \\ $\tau_{d_4} = 1.0$  \end{tabular} &  \begin{tabular}[c]{@{}l@{}} $[ 0.329141, 34.0727, 0.549795, 34.0727,$ \\  $0.757357, 34.1083, 0.12158, 34.1082]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}}  $x = 0.0111047$ \\ $y = 0.00467013$ \\ $\gamma = -0.192697$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.0695287, -0, -0.0665266, -0,$ \\ $-0.0539123, -0, 0.0463929, -0]$ \end{tabular} \\ \hline
+%			
+%			
+%			
+%		\end{tabular}
+%	}\renewcommand{\arraystretch}{3}
+%	\caption{Experimental analysis}
+%	\label{Decomposition Techniques}
+%	
+%\end{table}

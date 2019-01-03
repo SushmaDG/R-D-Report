@@ -53,88 +53,71 @@ M(q)\ddot{q} + C(q, \ddot{q}) = \tau - \tau_c
 
 where, $\tau_c$ is constraint force vector and is subjected to \textit{holonomic position constraint}, $h(q) = 0$. However, the obtained equation is not optimal. Chapter \ref{chap:solver} explains solver that computes optimal solution to the equation \ref{eq:contact}.
 
+{\color{red}Open source libraries available to implement Rigid body algorithm............}
+
 %In development of robots, the software realization of algorithms is important. There are various simulation approaches used to examine the required results. Similarily, to implement the 
 %
 %Software realization of these algorithm is also important to simulate or implement on the real robots. Therefore, various approaches were introduced
 
 \section{Software Frameworks}
 
-This section discusses primitive software frameworks implemented in the area of robot manipulators to handle the constraints originating from task requirements.
-
-{\color{red}The State of the art section discusses the various software frameworks and dynamic solvers employed in robot manipulators to dynamically realize constraints originating from task specification. 
-	
-	The kinematic and dynamic solvers compute control inputs for a manipulator given the manipulator’s dynamic parameters such as link inertia or joint friction, and external forces acting on the manipulator. They realize the task constraints that originate from task specification. Similarly, a mobile base naturally resembles a partially-constrained floating base. The constrained degrees of freedom of motions are,
-	\begin{itemize}
-		\item linear acceleration perpendicular to the ground;
-		\item angular acceleration about the two axes that are parallel to the ground.
-	\end{itemize}
-	
-	Additionally, each wheel introduces a \textit{Cartesian acceleration constraint} known as the \textit{sliding constraint}. In order to realize these motion constraints in mobile robots, the paper presents an extension to \textbf{Popov-Vereshchagin} hybrid dynamic solver. The solver computes the stabilized control inputs in manipulators, given the task objectives, the motion model of the robot as well as the cost function. The previous methods to address the navigation problem such as path tracking, point-point stabilization etc were controlled at kinematic level. There are few current approaches that explicitly control the robot at a dynamic level. One of the papers addresses the general problem of path tracking in mobile robots by presenting a detailed dynamic model with torque coupling. But the article fails to address the complex inner loop dynamics. }
-
+This section discusses primitive software frameworks implemented in the area of robot manipulators to handle the constraints originating from task requirements. 
 
 \subsection{Task Frame Formalism (\hyperref[tff]{TFF})}
-
-Task frame formalism is partly robot control architecture that executes compliant motion in manipualtors~\cite{kroger2004compliant},~\cite{mason1981compliance}~\cite{de1988compliant}. The quantities required to specify a compliant motion task in \hyperref[tff]{TFF} is as follows~\cite{kroger2004compliant},
+The manipulator actions are constrained due to the constant interaction with the environment. This constrained motion is also entitled as compliant motion~\cite{kroger2004compliant}. Task Frame Formalism is an intuitive approach that executes desired actions (force-controlled actions) compatible with constraints imposed by the task~\cite{bruyninckx1996specification}. The method is also called a \textit{Compliance frame formalism}. A \hyperref[tff]{TFF} frame is represented as follows~\cite{kroger2004compliant},
 \begin{equation}\label{eq:tff}
 	\mathcal{TF} := \big\{ \bar{\mathcal{P}}, RF, ANC \big\}
 \end{equation}
 
-where, $\bar{\mathcal{P}}$ is pose of \textit{task frame} expressed in \textit{reference frame} (RF).
+Here, $\mathcal{TF}$ refers to \textit{Task Frame}, which describes one frame respective to another in task definition. In the above notation (\ref{eq:tff}), $\bar{\mathcal{P}}$ is pose of \textit{task frame} expressed in \textit{reference frame} (RF). ANC is the \textit{anchor} that rigidly sets TF onto another frame. To specify any compliant motion following information is required~\cite{de1988compliant},
 \begin{itemize}
-	\item Defining the \textit{pose} of task frame
+	\item Task frame \textit{position} and \textit{orientation}
 	\item Specifying position and force controlled directions
 	\item Target position and force represented in task frame
 \end{itemize}
 
-The \textit{task frames} refers to dynamic frame defined with respect to another object in task and has its own trajectory as the assigned object. The \textit{task frame} refers to dynamic frame expressed in 
+The main feature of the approach is to execute a sequence of manipulation tasks (specifically, atomic actions) maintaining the desired contact force~\cite{mason1981compliance}~\cite{doi:10.1177/027836498800700402}. The formalism is independent of the control aspects and uses \textit{task-oriented} concept, which means that the method enables a distinct task specification~\cite{bruyninckx1996specification}. TFF is also used for motion constraint modeling and identification of uncertainty in compliant actions. The main drawback of TFF is that, it cannot handle changing motion constraints~\cite{bruyninckx1995kinematic}. 
 
-There are two ways to specify compliant task configuration, position/velocity controlled and force controlled~\cite{mason1981compliance}~\cite{de1988compliant}.
-
-There is a fixed relation between end-effector and task frame.    
-{\color{green} 
-Within this framework, the whole space of possible task directions can be divided into two orthogonal subspaces: one composed of force-controlled directions (position-constrained), and the other that represents velocity-controlled directions (force-constrained). A great number of tasks can be performed within this framework. The only condition is that it must be possible to decompose the task into force and velocity- controlled directions. \\ 
-
-The drawback of the task frame approach is that it only applies to task geometries for which separate control modes can be assigned independently to three pure translational and three pure rotational directions along the axes of a single frame. A more systematic approach is to assign control modes and corresponding constraints to arbitrary directions in the six-dimensional manipulation space.
-
-\subsection{Operational Space Formulation}
-The operational space of a manipulator is defined by the configuration space of the end-effector (the standard cartesian space). Operational space control (OSC) is an approach to manipulator control that focuses on the dynamic behavior of a serial rigid-link manipulator as seen at the end effector as it evolves in its operational space [7]. \\ The description, analysis, and control of manipulator systems with respect to the dynamic characteristics of their end-effectors have been the basic motivation in the research and development of the operational space formulation framework [8]. \\ An operational coordinate system is a set of x of m independent parameters describing the manipulator end-effector position and orientation in the frame R0. The end-effector equations of motion in operational space are [9],\\
-\textbf{$$ \lambda(q) \ddot{x} + \mu (q, \dot q) + p(q) = F_{op} $$}
-Where, $\lambda (q)$ is the kinetic energy matrix of the system with respect to the operational point. $x$ defines the operational space coordinates of the end-effector.\\	
-$\mu (q, \dot q)$ represents the Coriolis and centrifugal forces acting at the same operational point. $p(q)$ depicts the gravitational forces also expressed at that point.	$F_{op}$ is the generalized force vector expressed in the operational space.
+%The \textit{task frames} refers to dynamic frame defined with respect to another object in task and has its own trajectory as the assigned object. The \textit{task frame} refers to dynamic frame expressed in 
 
 
-One drawback of the approach is that it directly controls the manipulator in its functional / task space rather than controlling in corresponding joint space that occurs only after geometric and kinematic transformations [10].
+\subsection{Whole-Body Control Framework}
+A generalized framework introduced to specify and control whole-body motion. For redundant robots, the task description might involve combination of different coordinates and 
 
-\subsection{Stack of Tasks(SoT)}{.....}
 
-\subsection{Instantaneous task specification using constraints (iTaSC)}
-(De Schutter et al.) was the first to introduce a systematic constraint-based procedure to specify complex tasks for a variety of sensor-based robotic systems [1].
+
+\subsection{Stack of Tasks (\hyperref[sot]{SoT})}
+The \textit{Stack of tasks} introduces a hierarchy of tasks to control redundant robots (manipulators and humanoid robots). The approach was presented in ~\cite{mansard2009versatile},~\cite{mansard2009unified},~\cite{ramos2011dynamic}. Generally, the tasks description specifies motion with bilateral constraints, given by~\cite{mansard2009unified}, 
+\begin{equation}
+	e = s - s^*
+\end{equation}
+where $e$ is the (error) difference between actual ($s$) and desired ($s^*$) feature. This error function must converge to 0. Additionally, there are tasks that requires description of unilateral constraints (inequality constraints), which are represented by $e \leq 0$. Example of such tasks are obstacle avoidance~\cite{marchand1998dynamic}, robot joint limits~\cite{chaumette2001redundancy} or singularity avoidance~\cite{padois2007kinematic}. Considering both constraints, SoT prioritizes the tasks to better achieve desired motion, i.e., the lower priority tasks are projected in free motion space of higher priority tasks. However, the approach cannot handle unilateral constraints regarding contact forces. Hence, different methods were introduced as an extension to current formalism~\cite{saab2011generic}~\cite{saab2013dynamic}. 
+
+\subsection{\hyperref[itasc]{iTaSC}: instantaneous Task Specification and Control}
+
+\textit{iTaSC} is a \textit{constraint-based} approach introduced in~\cite{de2007constraint},~\cite{smits2009itasc}. The increase in complex robot tasks has led to the development of a systematic framework that can provide instantaneous task specification parallelly dealing with geometric uncertainty. Previously discussed approaches: \textit{TFF}, \textit{whole-body control framework} and \textit{Stack of Tasks} are based on the \textit{task function approach}. These approaches execute relative motion between robot and its environment through controlled dynamic interactions. Furthermore, task requirements impose certain constraints on robot motions. These constraints are not modeled in task function approach. Hence, a generic framework is required to realize the task constraints and also model geometric uncertainties. 
+
+
+As an extension to \textit{task frame} concept, iTaSC has introduced \textit{feature frames}. A part of \textit{feature frame} is based on \textit{task frame} itself and the other part specifies task constraints. Additionally, to specify relative pose between objects, the authors have introduced \textit{object frames}. As mentioned earlier, the approach deals with the geometric uncertainties, that are expressed using uncertainty coordinates. The uncertainties might originate from modeling errors or external geometric disturbances. These coordinates are further used for error reduction in task execution. 
+
+A Generic control scheme is presented by the authors in ~\cite{de2007constraint},~\cite{smits2009itasc},
+
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[scale=0.5]{images/General-control-scheme.png}
+	\includegraphics[scale=0.4]{images/General-control-scheme.png}
+	\caption{General control scheme of constraint-based approach (source:~\cite{de2007constraint})}
+	\label{fig:control}
 \end{figure}
-The iTaSC is a is a systematic constraint-based approach to specify complex tasks of general sensor-based robot systems. iTASC integrates both instantaneous task specification and estimation of geometric uncertainty in a unified framework. It allows easy specification and code-generation for robot tasks. It generates robot motions by specifying constraints between (parts of) the robots and their environment. iTaSC was born as a specification formalisms to generalize and extend existing approaches, such as the Operational Space Approach, the Task Function Approach, the Task Frame Formalism, geometric Cartesian Space control, and Joint Space control.
 
-The key advantages of iTaSC over traditional motion specification methodologies are [11]:
-\begin{itemize}
-	\item \textit{Composability of constraints: }Multiple constraints can be combined, hence the constraints can be partial, i.e. they do not have to constrain the full 6D relation between two objects.
-	\item \textit{Re-usability of constraint specification:} The constraints specify a relation between feature frames, which have a semantic meaning in the context of a task, implying that the same task specification can be reused on different objects.
-	\item \textit{Automatic derivation of the control solution:} The iTaSC methodology generates a robot motion that optimizes the constraints by automatically deriving the controllers from the constraint specification.
-\end{itemize}
-The iTaSC concepts apply to specifications in the robot, Cartesian and sensor space, to the position, velocity or torque-controlled robots, to explicit and implicit specifications, and to equality and inequality constraints. The current implementation, however, is currently still limited to the velocity control and equality constraints subset.
+In the above figure, $P$ is \textit{plant}, that represent overall system (robot and its environment). The inputs to the system are desired control parameters such as joint positions, torques or velocities collectively represented by signal $u$ and $X_u$ representing geometric uncertainties. $y$ is the system output variables and $z$ are sensor measurements. As seen in figure (\ref{fig:control}), the input signal $u$ is distributed between C and (M + E) blocks. Here, C represents \textit{Control} block. There is another input to Control block, i.e., $y_d$, that represents desired values. The constraints imposed on system output $y$ is converted to $y_d$. Other inputs to the controller include $\widehat{ \mathcal{X}_u}$ and $\widehat y$ representing uncertainty and output estimates respectively. These estimates are produced from \textit{model update} and \textit{estimation} block (M + E)~\cite{de2007constraint}.
 
-\section{Software architecture}
-\subsection{Whole body control}{....}
+Initially, the approach failed to consider the unknown dynamic parameters (friction and stiffness)~\cite{de2007constraint} and inequality constraints while computing robot motions. This deficit was further overlooked and authors extended the approach to compute the resultant motions as optimization problem~\cite{decre2013extending}~\cite{decre2009extending}. 
 
-\section{Limitations of previous work}
+So far, the iTaSC framework has been implemented in various robotic systems~\cite{han2017interaction},~\cite{vanthienen2011itasc},~\cite{somani2016task}. There is an open-source software\footnote{iTaSC Open-source software available at \url{https://gitlab.mech.kuleuven.be/rob-itasc}} introduced under Orocos project called iTaSC-Skill~\cite{itasc-software} that combines different iTaSC specifications. The software is also integrated in ROS. The software uses Bayesian Filtering Library (BFL) and \hyperref[kdl]{KDL} libraries to retrieve sensor data and representing virtual kinematic structure of robot. The implementation is currently controlled at velocity-level and considers only equality constraints~\cite{itasc-software}.
 
-\textbf{Software frameworks: }The primitive software frameworks implemented in the area of robot manipulators to handle the constraints originating from task specification are,
-\begin{itemize}
-\item Task frame formalism(TFF)
-\item The Operational Space Formulation
-\item Instantaneous task specification using constraints(iTaSC)
-\item Stack Of Tasks(SOT)
-\end{itemize}
+\section{Dynamic Modeling in Mobile Robots}
 
-}
+An autonomous mobile robot navigate from its current location to destination by avoiding obstacles along its way. An important consideration is the safety of robot and its environment. The researchers have introduced several methods to implement safe navigation~\cite{borenstein1990real},~\cite{adouane2011mobile}. There are few methods that consider the dynamic model to control mobile robot motions~\cite{fox1997dynamic},~\cite{asensio2002kinematic},~\cite{campion1996structural},~\cite{ge2002dynamic},~\cite{borenstein1989real}. 
+
+The literature~\cite{fox1997dynamic} proposes \textit{dynamic window approach} that implements an effective collision avoidance technique in mobile robots with synchronous drives. The method is derived from motion dynamics. In a populated and unknown environment, a mobile robot often must react immediately to unforeseen obstacles. In such situations, the robot must dynamically re-plan so as to reach its destination.

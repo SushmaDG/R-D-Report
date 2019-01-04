@@ -46,11 +46,11 @@ As explained in the section \ref{sec:computing-constraints}, the Gauss function,
 {\color{red} citation here........}
 
 \begin{equation}\label{eq:U}
-	U_0^A = U_{bias, 0}^A + U_{tau, 0}^A + U_{qdd, 0}^A + U_{ext, 0}^A - b_N 
+	U_{desired, 0}^A = U_0^A - b_N 
 \end{equation}
 
 \begin{equation}\label{eq:nu-float}
-	\nu_{float} = \big[ (A_0^A)^T (H_0^A)^{-1} A_0^A - \mathcal{L}_0^A \big]^{-1} \big[ U_0^A - (A_0^A)^T (H_0^A)^{-1} F_{bias, 0}^A \big]
+	\nu_{float} = \big[ (A_0^A)^T (H_0^A)^{-1} A_0^A - \mathcal{L}_0^A \big]^{-1} \big[ U_{desired, 0}^A - (A_0^A)^T (H_0^A)^{-1} F_{bias, 0}^A \big]
 \end{equation}
 
 
@@ -64,7 +64,7 @@ The constraint calculation for a fixed base is given in the algorithm \ref{Algor
 	\end{pmatrix}
 \end{equation}
 
-The notation $\mathcal{L}_0$ is acceleration coupling matrix expressed as \ref{eq:L-matrix} for given number of constraints. Further, the desired acceleration energy vector ($U_0^A$) expressed at root coordinates is given by \ref{eq:U}, where $b_N$ is the respective constraint acceleration energy vector. 
+The notation $\mathcal{L}_0$ is acceleration coupling matrix expressed as \ref{eq:L-matrix} for given number of constraints. Further, the desired acceleration energy vector ($U_{desired, 0}^A$) expressed at root coordinates is given by \ref{eq:U}, where $U_0^A$ is the computed acceleration energy expressed at base coordinates and $b_N$ is the respective constraint acceleration energy vector. 
 
 
 In case of kinematic chain structure, the base is fixed. Hence the root acceleration is equal to acceleration due to gravity (expression \ref{eq:acc}). 

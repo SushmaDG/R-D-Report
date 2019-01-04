@@ -89,7 +89,7 @@ A_N^T \ddot{X}_N = b_N
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The Vereshchagin solver is domain-specific, since it exploits the kinematic chain structure. Evaluating for a possible minimum solution to the function \ref{eq:gauss}, in presence of certain linear constraints is termed as \textit{constrained optimization problem}. The equation is thus extended to \cite{shakhimardanov2015composable}, 
+\paragraph{}The Vereshchagin solver is domain-specific, since it exploits the kinematic chain structure. Evaluating for a possible minimum solution to the function \ref{eq:gauss}, in presence of certain linear constraints is termed as \textit{constrained optimization problem}. The equation is thus extended to \cite{shakhimardanov2015composable}, 
 
  \begin{equation} \label{eq:minimization}
  \mathcal{Z} = \min_{\ddot{q}} \Big \{\sum_{i=0}^{N} \frac{1}{2} \ddot{X_i}^T H_i \ddot{X_i} + F_{bias, i}^T\ddot{X_i} + \sum_{i=1}^{N} \frac{1}{2} d_i \ddot{q_i}^2 - \tau_i \ddot{q_i} + \nu_T A^T_N \ddot{X}_N \Big \}

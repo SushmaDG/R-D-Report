@@ -24,7 +24,7 @@ where, $M(q)$ stands for inertia matrix represented in joint space and is a func
 
 The above equation is also termed as \textit{dynamic equation of motion} for rigid body system (further explanation can be found in appendix~\ref{chap:dynamic}). There are several types of robots such as manipulators, mobile robots, aerial robots etc, which are composition of rigid bodies. In this project, to simplify the analysis of robot dynamics, \textit{Spatial notations} are used to represent the system and follows the convention as used in Featherstone~\cite{featherstone2014rigid}. The Spatial notions include 6D vectors describing six degrees of freedom of a single rigid body. 
 
-The applications of forward dynamics can be found mainly in simulation, whereas, inverse dynamics is applied for motion control system~\cite{featherstone1984robot}. However, there are different robot task definitions that requires combination of forward and inverse dynamics. Specifically for applications involving \textit{posture control} (humanoid robots and manipulators), the robot must realize the motion and force constraints instantaneously as imposed by the task requirements. The basic algorithms to solve each of the dynamics problem are listed below,
+\paragraph{} The applications of forward dynamics can be found mainly in simulation, whereas, inverse dynamics is applied for motion control system~\cite{featherstone1984robot}. However, there are different robot task definitions that requires combination of forward and inverse dynamics. Specifically for applications involving \textit{posture control} (humanoid robots and manipulators), the robot must realize the motion and force constraints instantaneously as imposed by the task requirements. The basic algorithms to solve each of the dynamics problem are listed below,
 \begin{enumerate}
 	\item \textit{Forward dynamics}
 	\begin{itemize}
@@ -59,7 +59,7 @@ where, $\tau_c$ is constraint force vector and is subjected to \textit{holonomic
 %
 %Software realization of these algorithm is also important to simulate or implement on the real robots. Therefore, various approaches were introduced
 
-\section{Software Frameworks}
+\section{Software Frameworks} \label{sec:software}
 
 This section discusses primitive software frameworks implemented in the area of robot manipulators to handle the constraints originating from task requirements. 
 
@@ -81,8 +81,11 @@ The main feature of the approach is to execute a sequence of manipulation tasks 
 %The \textit{task frames} refers to dynamic frame defined with respect to another object in task and has its own trajectory as the assigned object. The \textit{task frame} refers to dynamic frame expressed in 
 
 
-\subsection{Whole-Body Control Framework}
-A generalized framework introduced to specify and control whole-body motion. For redundant robots, the task description might involve combination of different coordinates and 
+\subsection{Whole-Body Operational Space Control (WBOSC)}
+
+Operational Space Formulation (OSF) was introduced to specify and control whole-body motion in robots~\cite{khatib1987unified}~\cite{khatib1987optimization}. The framework primarily analyses and controls manipulator motions in accordance to dynamic features of end-effectors. This approach was further extended to \hyperref[wbosc]{WBOSC}~\cite{khatib2004whole},~\cite{chang2000operational},~\cite{sentis2006whole},~\cite{sentis2005synthesis},~\cite{khatib2008unified}.
+
+A \textit{task-oriented}framework introduced to specify and control whole-body motion was \textit{operational body formulation} For redundant robots, the task description might involve combination of different coordinates and 
 
 
 
@@ -93,12 +96,12 @@ The \textit{Stack of tasks} introduces a hierarchy of tasks to control redundant
 \end{equation}
 where $e$ is the (error) difference between actual ($s$) and desired ($s^*$) feature. This error function must converge to 0. Additionally, there are tasks that requires description of unilateral constraints (inequality constraints), which are represented by $e \leq 0$. Example of such tasks are obstacle avoidance~\cite{marchand1998dynamic}, robot joint limits~\cite{chaumette2001redundancy} or singularity avoidance~\cite{padois2007kinematic}. Considering both constraints, SoT prioritizes the tasks to better achieve desired motion, i.e., the lower priority tasks are projected in free motion space of higher priority tasks. However, the approach cannot handle unilateral constraints regarding contact forces. Hence, different methods were introduced as an extension to current formalism~\cite{saab2011generic}~\cite{saab2013dynamic}. 
 
-\subsection{\hyperref[itasc]{iTaSC}: instantaneous Task Specification and Control}
+\subsection{\hyperref[itasc]{iTaSC} - instantaneous Task Specification and Control}
 
 \textit{iTaSC} is a \textit{constraint-based} approach introduced in~\cite{de2007constraint},~\cite{smits2009itasc}. The increase in complex robot tasks has led to the development of a systematic framework that can provide instantaneous task specification parallelly dealing with geometric uncertainty. Previously discussed approaches: \textit{TFF}, \textit{whole-body control framework} and \textit{Stack of Tasks} are based on the \textit{task function approach}. These approaches execute relative motion between robot and its environment through controlled dynamic interactions. Furthermore, task requirements impose certain constraints on robot motions. These constraints are not modeled in task function approach. Hence, a generic framework is required to realize the task constraints and also model geometric uncertainties. 
 
 
-As an extension to \textit{task frame} concept, iTaSC has introduced \textit{feature frames}. A part of \textit{feature frame} is based on \textit{task frame} itself and the other part specifies task constraints. Additionally, to specify relative pose between objects, the authors have introduced \textit{object frames}. As mentioned earlier, the approach deals with the geometric uncertainties, that are expressed using uncertainty coordinates. The uncertainties might originate from modeling errors or external geometric disturbances. These coordinates are further used for error reduction in task execution. 
+\paragraph{}As an extension to \textit{task frame} concept, iTaSC has introduced \textit{feature frames}. A part of \textit{feature frame} is based on \textit{task frame} itself and the other part specifies task constraints. Additionally, to specify relative pose between objects, the authors have introduced \textit{object frames}. As mentioned earlier, the approach deals with the geometric uncertainties, that are expressed using uncertainty coordinates. The uncertainties might originate from modeling errors or external geometric disturbances. These coordinates are further used for error reduction in task execution. 
 
 A Generic control scheme is presented by the authors in ~\cite{de2007constraint},~\cite{smits2009itasc},
 
@@ -114,10 +117,57 @@ In the above figure, $P$ is \textit{plant}, that represent overall system (robot
 
 Initially, the approach failed to consider the unknown dynamic parameters (friction and stiffness)~\cite{de2007constraint} and inequality constraints while computing robot motions. This deficit was further overlooked and authors extended the approach to compute the resultant motions as optimization problem~\cite{decre2013extending}~\cite{decre2009extending}. 
 
-So far, the iTaSC framework has been implemented in various robotic systems~\cite{han2017interaction},~\cite{vanthienen2011itasc},~\cite{somani2016task}. There is an open-source software\footnote{iTaSC Open-source software available at \url{https://gitlab.mech.kuleuven.be/rob-itasc}} introduced under Orocos project called iTaSC-Skill~\cite{itasc-software} that combines different iTaSC specifications. The software is also integrated in ROS. The software uses Bayesian Filtering Library (BFL) and \hyperref[kdl]{KDL} libraries to retrieve sensor data and representing virtual kinematic structure of robot. The implementation is currently controlled at velocity-level and considers only equality constraints~\cite{itasc-software}.
+So far, the iTaSC framework has been implemented in various robotic systems~\cite{han2017interaction},~\cite{vanthienen2011itasc},~\cite{somani2016task}. There is an open-source software\footnote{iTaSC Open-source software available at \url{https://gitlab.mech.kuleuven.be/rob-itasc}} available under Orocos project called iTaSC-Skill~\cite{itasc-software} that combines different iTaSC specifications. The software is also integrated in ROS. The software uses Bayesian Filtering Library (BFL) and \hyperref[kdl]{KDL} libraries to retrieve sensor data and representing virtual kinematic structure of robot. 
 
-\section{Dynamic Modeling in Mobile Robots}
+One example of iTaSC application is PR2 co-manipulation (figure \ref{fig:pr2}) that was presented at IROS 2011, San Fransisco, CA. 
 
-An autonomous mobile robot navigate from its current location to destination by avoiding obstacles along its way. An important consideration is the safety of robot and its environment. The researchers have introduced several methods to implement safe navigation~\cite{borenstein1990real},~\cite{adouane2011mobile}. There are few methods that consider the dynamic model to control mobile robot motions~\cite{fox1997dynamic},~\cite{asensio2002kinematic},~\cite{campion1996structural},~\cite{ge2002dynamic},~\cite{borenstein1989real}. 
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[scale=0.5]{images/PR2.png}
+	\end{center}
+	\caption{iTaSC demonstration on PR2}
+	\label{fig:pr2}
+\end{figure}
 
-The literature~\cite{fox1997dynamic} proposes \textit{dynamic window approach} that implements an effective collision avoidance technique in mobile robots with synchronous drives. The method is derived from motion dynamics. In a populated and unknown environment, a mobile robot often must react immediately to unforeseen obstacles. In such situations, the robot must dynamically re-plan so as to reach its destination.
+Given the set of task constraints such as head tracking, joint limits, force follow, maintaining the grippers parallel to each other and obstacle avoidance, the demonstration successfully implemented the task. The main drawback of the approach is that, the robot motions are controlled at \textit{velocity-level} and considers only equality constraints~\cite{itasc-software}.
+
+\section{Dynamic Modeling in Mobile Robots} \label{sec:dynamic-modeling}
+
+An autonomous mobile robot navigate from its current location to destination by avoiding obstacles along its way. An important consideration is the safety of robot and its environment. The researchers have introduced several methods to implement safe navigation~\cite{borenstein1990real},~\cite{adouane2011mobile}. There are few methods that consider the dynamic model to control mobile robot motions~\cite{fox1997dynamic},~\cite{asensio2002kinematic},~\cite{ge2002dynamic},~\cite{borenstein1989real}. 
+
+\paragraph{}The literature~\cite{fox1997dynamic} proposes \textit{dynamic window approach} that implements an effective collision avoidance technique in mobile robots with synchronous drives. The method is derived from motion dynamics. In a populated and unknown environment, a mobile robot must react immediately to unforeseen obstacles. The author proposes that, to react to the unexpected obstacles or circumstances, the robot must dynamically re-plan so as to reach its destination. Here, the velocity search space is reduced, by considering the velocity commands achievable under dynamic constraints. 
+
+\paragraph{}\cite{fox1997dynamic}~This approach to obstacle avoidance is experimented on RHINO (robot equipped with synchronous drive). While driving through obstacle free area, RHINO navigates with highest velocity, and if an obstacle is detected, velocity of the robot is decreased by selecting suitable trajectories. Consider a situation where the robot is moving along a long corridor and there is an opening to the right. Now, the robot has to decide if it can take an immediate turn to right or not. These decisions are made by considering the robot dynamics. The robot will either take a sharp turn (only if robot has suitable velocity and acceleration) or tries to align to the wall by reducing heading angle. The main drawback of the approach is that in the experiment author assumes to have information about the obstacle's relative locations and hence the approach is appropriate for proximity sensors. For different sensors, further assumptions have to be made. 
+
+\paragraph{}The paper~\cite{asensio2002kinematic} presents kinematic and dynamic modeling of differential drive controller. When a virtual force is applied on the robot, considering the kinematic and dynamic constraints, the approach computes the velocities and accelerations compatible with the constraints. Here, the robot model itself is used as controller (also called as \textit{reference model}) which also acts as motion generator. By providing a physical sense to controller parameters, they are adjusted to satisfy the dynamic behavior of the robot. This results in an automatic computation of desired velocities with no further tuning of robot parameters. The author presents a closed-loop control scheme depicting \textit{reference model} as controller.
+
+\begin{figure}[h!]
+\begin{center}
+	\includegraphics[scale=0.35]{images/reference-model.png}
+\end{center}
+	\caption{Reference model integrated in closed-loop control scheme(source:~\cite{asensio2002kinematic})}
+	\label{fig:reference-model}
+\end{figure}
+
+
+For a given navigation task, the \textit{reference model} (above figure) computes the error ($e_M$) between desired and current location of robot. This error is further adjusted according to robot parameters. To use this reference model as controller, the method assumes to have robot's velocity control scheme that is fixed. If error calculated is 0 ($e_M = 0$), then the final control loop looks like the double-lined block. The error, $e_M \neq 0$ represents that the robot parameters (velocities and acceleration) are not within the scope. Then offline retuning of the controller parameters is done as a function of error $e_M$. The method do not consider the dynamic robot parameters, instead it fine tunes them to obtain desired robot motion in presence of kinematic and dynamic constraints. The paper also presents the experimentation, where, reactive navigation i.e., avoiding unknown obstacles to achieve safe navigation is executed using this \textit{reference model}. The main drawback of the approach is that it implements velocity controller and assumes it to be fixed. However, {\color{red}In a dynamic environment, the controller must execute instantaneous robot motions to avoid unexpected collisions. This can be achieved at acceleration level rather than velocity-level}
+
+\paragraph{}In the literature~\cite{borenstein1989real}, the authors have proposed \textit{Vector Force field} concept to implement real-time \textit{collision avoidance} in mobile robots. The method is based on two abstractions, a) Representation of obstacles as \textit{Certainty Grids}, b) Navigation based on \textit{Potential Fields}. Combining these two abstractions and accounting to dynamic properties of mobile robots, \hyperref[vff]{VFF} solves \textit{local minimum trap}~\cite{julia2008local},~\cite{park2003new}. 
+
+\paragraph{}The \textit{local minimum trap} problem regards to the robot being trapped due to the occurrence of local minimum in the \textit{potential field} approach and robot cannot proceed with further exploration. There are two algorithm presented in the approach. One to enhance the dynamic motion of robot and other to recover from \textit{trap}. Additionally, the method considers the situation of collision avoidance in dynamic environment as wall-following problem, i.e., after encountering obstacle, the robot follows, while maintaining constant distance, along the contour of detected object until its reaches original course. 
+
+\paragraph{}The approach~\cite{borenstein1989real} is tested on a mobile robot platform named CARMEL, in which the real time model was represented by \textit{Certainty grids}. Combining this representation with \textit{virtual potential field} resulted in clusters. The cluster with high likelihood is considered as an obstacle. Additionally, the possible trap conditions were eliminated by following a set of heuristic rules. However, {\color{red}the method fails to avoid unexpected obstacles, because motions controlled at velocity level cannot cope with instantaneous change in motion.}
+
+%because the robot motions are controlled at velocity level and hence the motion commands cannot be controlled instantaneously.
+
+%Another literature~\cite{ge2002dynamic} that also uses \textit{potential field method} and presents dynamic motion planning in mobile robots. The \textit{potential field method} was 
+
+\section{Limitations of previous work}
+The section presented various software frameworks and some of the approaches performing dynamic modeling in mobile robots. The limitations of aforementioned approaches in accordance to use cases (see section \ref{sec:problem}) is explained in this section. 
+
+\paragraph{}The Software frameworks are currently targeted at manipulators. The key feature of these frameworks is that, they support various constraints originating from task specification and accomplish desired motion. It also provides a customized way of specifying and executing complex tasks. However, in field of mobile robots, there are no implementation of task specification frameworks.
+
+Above discussed approaches (in section \ref{sec:dynamic-modeling}), aims at achieving safe-navigation while considering the dynamic model of the robot. However, in all those methods, the robot motions are controlled at \textit{velocity-level}. The use cases explained in section \ref{sec:problem}, need to control the robot motions at force and acceleration level. 
+
+
+

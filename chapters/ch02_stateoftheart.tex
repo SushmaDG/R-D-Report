@@ -131,7 +131,7 @@ One example of iTaSC application is PR2 co-manipulation (figure \ref{fig:pr2}) t
 
 Given the set of task constraints such as head tracking, joint limits, force follow, maintaining the grippers parallel to each other and obstacle avoidance, the demonstration successfully implemented the task. The main drawback of the approach is that, the robot motions are controlled at \textit{velocity-level} and considers only equality constraints~\cite{itasc-software}.
 
-\section{Dynamic Modeling in Mobile Robots} \label{sec:dynamic-modeling}
+\section{Safe-navigation approaches} \label{sec:dynamic-modeling}
 
 An autonomous mobile robot navigate from its current location to destination by avoiding obstacles along its way. An important consideration is the safety of robot and its environment. The researchers have introduced several methods to implement safe navigation~\cite{borenstein1990real},~\cite{adouane2011mobile}. There are few methods that consider the dynamic model to control mobile robot motions~\cite{fox1997dynamic},~\cite{asensio2002kinematic},~\cite{ge2002dynamic},~\cite{borenstein1989real}. 
 
@@ -163,11 +163,15 @@ For a given navigation task, the \textit{reference model} (above figure) compute
 %Another literature~\cite{ge2002dynamic} that also uses \textit{potential field method} and presents dynamic motion planning in mobile robots. The \textit{potential field method} was 
 
 \section{Limitations of previous work}
-The section presented various software frameworks and some of the approaches performing dynamic modeling in mobile robots. The limitations of aforementioned approaches in accordance to use cases (see section \ref{sec:problem}) is explained in this section. 
+The current state of the art discussed various software frameworks and safe-navigation approaches. The limitations of these methods with respect to the use cases explained in \ref{sec:problem} are presented in this section. 
 
-\paragraph{}The Software frameworks are currently targeted at manipulators. The key feature of these frameworks is that, they support various constraints originating from task specification and accomplish desired motion. It also provides a customized way of specifying and executing complex tasks. However, in field of mobile robots, there are no implementation of task specification frameworks.
+\paragraph{}The Software frameworks are currently deployed in manipulators. The key feature of these frameworks is that, they support various constraints originating from task specifications, to accomplish desired motion. It also provides a customized way of specifying and executing complex tasks. The utilities of these task specification frameworks have not been explored for mobile robots. 
 
-Above discussed approaches (in section \ref{sec:dynamic-modeling}), aims at achieving safe-navigation while considering the dynamic model of the robot. However, in all those methods, the robot motions are controlled at \textit{velocity-level}. The use cases explained in section \ref{sec:problem}, need to control the robot motions at force and acceleration level. 
+Furthermore, the safe navigation techniques currently implemented in mobile robots are discussed in \ref{sec:dynamic-modeling}. In these methods, the robot motions are controlled at \textit{velocity-level}
+
+YET TO EDIT!
+
+above discussed safe-navigation approaches (in section \ref{sec:dynamic-modeling}), aims at achieving safe-navigation while considering the dynamic model of the robot. However, in all those methods, the robot motions are controlled at \textit{velocity-level}. The use cases explained in section \ref{sec:problem}, need to control the robot motions at force and acceleration level. 
 
 
 

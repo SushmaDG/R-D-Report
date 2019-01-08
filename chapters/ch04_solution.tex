@@ -1,6 +1,6 @@
 %!TEX root = ../DevaramaniS-[RnD-MT]Report.tex
 
-\chapter{Extending the Vereshchagin hybrid dynamic solver to mobile robots}
+\chapter{Extending the Vereshchagin hybrid dynamic solver to mobile robots}\label{chap:extension}
 
 As discussed in State of the art, there are various software frameworks and dynamic solvers employed specifically in manipulators to satisfy the constraints imposed by task requirements. These approaches considers the dynamic properties of the system and compute the desired motion. In case of mobile robots, there are approaches introduced to compute the control commands by considering the dynamics of the robot. However, there are no task specification frameworks or solvers that would provide a better procedure to handle instantaneous task specifications. Therefore, the main objective of the project is to 
 extend and apply the \textit{Popov-Vereshchagin hybrid dynamic solver} to mobile robots. 
@@ -16,10 +16,20 @@ A theoretical description on extension of the solver to multiple end-effectors (
 \subsection{Initial outward sweep}
 The computations in outward sweep remains unchanged except the way of recursion. For a simple serial chain, the outward sweep is a single path from base to end-effector. This remains the same for kinematic tree structure as well, but the recursion must traverse to all the respective end-effectors~\cite{shakhimardanov2015composable}. 
 
-In the Constrained hybrid dynamics algorithm (\ref{Algorithm1}), the initial outward sweep loops from $i=0$ (base) to $N-1$ (end-effector). The recursion must be changed to traverse from base to all the tree elements.
+\paragraph{}In the Constrained hybrid dynamics algorithm (\ref{Algorithm1}), the initial outward sweep loops from $i=0$ (base) to $N-1$ (end-effector). To traverse from base to all end-effectors, breadth-first search is used. The tree elements must be ordered in such as way that, iterating through them would result in \textit{breadth-first search}. 
+
+
+
+
+
+
+%The recursion must be changed to traverse from base to all the end-effectors in sub-chains. This can be achieved by iterating in \textit{breadth-first-search}.
 
 \subsection{Inward sweep}
-The main modifications in inward sweep includes~\cite{shakhimardanov2015composable},
+In the current solver, the inward sweep loops from $i = N-1$ to $i=0$ using \textit{for loop}. For tree structure, the inward sweep must traverse from all respective end-effectors to base similar to \textit{reverse breadth-first search} fashion. 
+
+
+\paragraph{}The main modifications in inward sweep includes~\cite{shakhimardanov2015composable},
 \begin{itemize}
 	\item The apparent inertias ($H^a$) and forces ($F^a$) of parent segment must combine all the articulated inertias and forces computed by the child segments.
 	\item The constraint force matrix ($A$), must combine the constraints applied at each of the end-effectors. Hence, the matrix will be expanded column-wise.
@@ -67,7 +77,7 @@ The constraint calculation for a fixed base is given in the algorithm \ref{Algor
 The notation $\mathcal{L}_0$ is acceleration coupling matrix expressed as \ref{eq:L-matrix} for given number of constraints. Further, the desired acceleration energy vector ($U_{desired, 0}^A$) expressed at root coordinates is given by \ref{eq:U}, where $U_0^A$ is the computed acceleration energy expressed at base coordinates and $b_N$ is the respective constraint acceleration energy vector. 
 
 
-In case of kinematic chain structure, the base is fixed. Hence the root acceleration is equal to acceleration due to gravity (expression \ref{eq:acc}). 
+\paragraph{}In case of kinematic chain structure, the base is fixed. Hence the root acceleration is equal to acceleration due to gravity (expression \ref{eq:acc}). 
 \begin{equation}
 	\label{eq:acc}
 	\ddot{X}_0 = -\ddot{X}_g
@@ -94,27 +104,3 @@ The \textit{Vereshchagin solver} is exercised in robot manipulators to evaluate 
 %
 %\section{Implementation details}{........}
 %
-%\begin{table}[h]
-%	
-%	\renewcommand{\arraystretch}{2.5}
-%	\resizebox{\textwidth}{!}{%
-%		\begin{tabular}{| l | l | l | l | l |}
-%			\hline
-%			\multicolumn{2}{| M{7.5cm}|}{\textbf{Inputs}}    & \multicolumn{3}{M{15cm}|}{\textbf{Outputs}} \\ \hline
-%			
-%			\textit{\textbf{External force ($F_{ext}$)}} & \textit{\textbf{Joint Torques($\tau$)}} & \textit{\textbf{Joint accelerations ($\Ddot{q}$)}} & \textit{\textbf{Root acceleration}} & \textit{\textbf{Control torques ($\tau_{control}$)}} \\ \hline
-%			
-%			\begin{tabular}[c]{@{}l@{}}$\gamma = 10$ \\ $[0, 0, 0, 0,  0, 10]$ \end{tabular}   &  $[0, 0, 0, 0, 0, 0, 0, 0]$ &  \begin{tabular}[c]{@{}l@{}} $[-0.651743,   -1.36504, -3.97664,  -1.36552,$ \\ $-3.97664, -1.36552, -0.651743, -1.36504]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}} $\gamma = 1.4962 $ \\  $x = -0.0368095$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.303226, -0, -0.126057, -0,$ \\$ -0.126057, -0, 0.303226, 0]$ \end{tabular} \\ \hline
-%			
-%			\begin{tabular}[c]{@{}l@{}}$x = 50$ \\ $[50, 0, 0, 0,  0, 0]$ \end{tabular}   &  $[0, 0, 0, 0, 0, 0, 0, 0]$ &  \begin{tabular}[c]{@{}l@{}} $[3.49264, 0.168407, 3.90164    0.168467,$ \\ $3.90164, 0.168467, 3.49264, 0.168407]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}} $\gamma = -0.184047 $ \\  $x = 0.158089$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.243069, -0, 0.238214, -0 ,$ \\ $0.238214, -0, 0.243069, -0]$ \end{tabular} \\ \hline
-%			
-%			$[0, 0, 0, 0,  0, 0]$  &  \begin{tabular}[c]{@{}l@{}} $\tau_{d_1} = 1.0$ \\ $\tau_{d_2} = 1.0$ \\ $\tau_{d_3} = 1.0$ \\ $\tau_{d_4} = 1.0$  \end{tabular} &  \begin{tabular}[c]{@{}l@{}} $[ 0.329141, 34.0727, 0.549795, 34.0727,$ \\  $0.757357, 34.1083, 0.12158, 34.1082]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}}  $x = 0.0111047$ \\ $y = 0.00467013$ \\ $\gamma = -0.192697$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.0695287, -0, -0.0665266, -0,$ \\ $-0.0539123, -0, 0.0463929, -0]$ \end{tabular} \\ \hline
-%			
-%			
-%			
-%		\end{tabular}
-%	}\renewcommand{\arraystretch}{3}
-%	\caption{Experimental analysis}
-%	\label{Decomposition Techniques}
-%	
-%\end{table}

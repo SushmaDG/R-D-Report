@@ -1,16 +1,19 @@
 %!TEX root = ../DevaramaniS-[RnD-MT]Report.tex
 \chapter{Popov-Vereshchagin Hybrid Dynamics Solver}
 \label{chap:solver}
+The use cases discussed in section \ref{sec:problem}, requires a way to control the robot motions such that the constraints are satisfied. 
 
-.... Introduction to Solver ...........
+
+\section{Solver Introduction}
+
+The Popov-Vereshchagin solver is a linear-time constrained hybrid-dynamic solver derived from one of the principles of mechanics - \textit{Gauss principle of least constraints}~\cite{vereshchagin1989modeling}, that formulates a ``dynamically natural way'' to solve the redundancy problem in manipulators~\cite{bruyninckx2000gauss}. The researches based on The main feature of the solver is that it computes desired acceleration of the robot in turn resolving the constraints originating from task requirements. Previous work on solver \cite{article}
 
 % **********************************************************************************
 %{Properties of solver and how is it related to my application why is it nice.... some technical stuff and how solver helps to achive those tasks}
 % *********************************************************************************
 
 \section{Solver Derivation}
- 
-The Popov-Vereshchagin solver is a linear-time constrained hybrid-dynamic solver is derived from one of the principles of mechanics - \textit{Gauss principle of least constraints}~\cite{vereshchagin1989modeling}, that formulates a ``dynamically natural way'' to solve the redundancy problem in manipulators~\cite{bruyninckx2000gauss}. At the basis, the principle states that ``\textit{Out of all the possible motions (accelerations) that are complied with the constraints of a system, a true motion (acceleration) is executed, which corresponds to minimum acceleration energy}''. This true acceleration is the closest possible acceleration to an unconstrained system. Here, the solver computes the true acceleration of the kinematic chain by minimizing the \textit{acceleration energy}. 
+As mentioned in the introduction, the solver is derived from \textit{Gauss principle of least constraints} At the basis, the principle states that ``\textit{Out of all the possible motions (accelerations) that are complied with the constraints of a system, a true motion (acceleration) is executed, which corresponds to minimum acceleration energy}''. This true acceleration is the closest possible acceleration to an unconstrained system. Here, the solver computes the true acceleration of the kinematic chain by minimizing the \textit{acceleration energy}. 
 
  As defined by the task requirements in a manipulator, various Cartesian acceleration constraints are imposed on one or more segments. Physically, these constraints are realized by forces exerted to limit the motion (acceleration) of segments in certain direction, which in turn produces acceleration energy. 
 % Additionally, by minimizing the Gauss function, the solver computes the true motion/acceleration of the kinematic chain for given control forces \cite{vereshchagin1989modeling}.

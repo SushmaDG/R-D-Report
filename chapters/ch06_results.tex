@@ -2,13 +2,24 @@
 
 \chapter{Experimental Evaluation and Results}
 
-The following chapter presents the \textit{proof of concept} and evaluation of the proposed extension to \textit{Popov-Vereshchagin solver} . All the experiments are conducted in a simulation environment. The obtained results are analyzed based on the physical behavior of the system. 
+The following chapter presents the \textit{proof of concept} and evaluation of the proposed extension to \textit{Popov-Vereshchagin solver}. All the experiments are conducted in a simulation environment. The obtained results are analyzed based on the physical behavior of the system. 
 
 
 \section{Experimental Setup}
-This section describes the overall experimental setup followed to show the proposed extension to the solver for a mobile base. All the experiments discussed in the following sections are tested in a simulation environment. There are mainly three cases discussed in experimental setup. By varying the inputs to the solver, the obtained simulation results are analyzed based on the possible physical behavior of the system. 
+This section describes the overall experimental setup designed to test the proposed extension to the solver for MPO-700 robot base. The modeled tree structure of MPO-700 base is tested for its behavior by providing external forces and feed-forward torques. The other input parameters ($q$, $\dot{q}$, ($\ddot{q}$), $A_N$ and $b_N$) are kept constant. The computed joint and base accelerations are interpreted based on the magnitudes and directions, and are analyzed with respect to the physical behavior of the system. The following experiments are based on some of the assumptions, they are,
 
-The inputs to the solver are, robot model, inertia data, $q$, $\dot{q}$, $\tau$, $\ddot{X}_0$, $F^{ext}$, $A_N$ and $b_N$. The robot model is the created kinematic tree structure of the MPO-700 robot base, in the previous chapter. Some of the input parameters that are kept constant throughout the experiment, they are,
+\begin{itemize}
+	\item The wheel and joint configuration is assumed to be the same in all experiments.  
+	\item The convention used to represent joint and base motions follow \textit{right-hand rule}.
+	\item The friction between joints or at the point of contact of wheel and ground is not considered in experiments.
+	\item The virtual rolling constraint is not modeled in the kinematic chain and hence not considered in test cases.
+	\item The units of physical quantities are not considered by the solver, however, all the quantities in experiments are specified such a way that they are consistent with each other.
+	\item The axis of drive wheel is assumed to be aligned with caster offset/link. Therefore, the rotation of caster joints are interpreted based on the movement of drive wheel axis.
+	\item The rigid offset between orientation and drive joints, introduce a constraint on wheel (due to the previous assumption). That is, wheel cannot rotate about its z-axis. This is a natural constraint imposed by the model and hence not defined explicitly in constraint matrix.
+	\item The experimental results are evaluated with respect to the physical behavior of system. However, there are some factors such as friction, virtual rolling constraints are not considered. Because, the these factors are not modeled currently by the solver. 
+\end{itemize}
+
+Following are the input and output parameters described briefly. The input parameters that are kept constant throughout the experiment are,
 
 \begin{itemize}
 	\item \textit{Input joint angles (q), velocities ($\dot{q}$) and accelerations ($\ddot{q}$)} = 0 for all joints
@@ -33,73 +44,190 @@ The inputs to the solver are, robot model, inertia data, $q$, $\dot{q}$, $\tau$,
 	\end{equation}
 \end{itemize}
 
-The two other input parameters are external force and feed-forward torques. In the following experiment scenarios, these two parameters are varied and the results are analyzed.  
-The solver outputs are $\ddot{q}$, $\tau_{control}$ and $\ddot{X}$. 
+As mentioned earlier, the experiments are conducted by providing external force ($F_{ext}$) and feed-forward torques ($\tau$) to the base. The external force is a six-dimensional vector expressed in Cartesian space, and it is applied at the robot base. According to the KDL conventions, $F_{ext}$ is represented as, 
+\begin{equation}
+	F_{ext} = \begin{pmatrix}
+		f_x \\
+		f_y \\
+		f_z\\
+		\tau_x \\
+		\tau_y \\
+		\tau_z\\
+	\end{pmatrix}
+\end{equation} 
+
+where, the first three entries corresponds to linear forces and last three parameters are angular torques. The feed-forward torques are applied to each of the joints. Initially, these values are set to zero. To simplify the representation of the joints, letter ``o'' is used to denote orientation (caster) joints and ``d'' is used to denote drive joints. The feed-forward torque is thus represented as [o1, d1, o2, d2, o3, d3, o4, d4] (alternatively orientation and drive joints).
+
+
+Furthermore, the solver outputs that are analyzed in the experiment are - $\ddot{q}$ and $\ddot{X}$. 
 \begin{itemize}
-	\item \textit{Joint accelerations ($\ddot{q}$):} Represents the resultant accelerations at every joints. For simplified notations, the orientation joints are denoted by ``o'' and drive joints are denoted by ``d''. In the table below, the order of all the joint acceleration are - [o1, d1, o2, d2, o3, d3, o4, d4].
+	\item \textit{Joint accelerations ($\ddot{q}$):} Represents the resultant accelerations at every joints. In the table below, the order of all the joint acceleration are, o = [o1, o2, o3, o4] and d = [d1, d2, d3, d4]. The rotation of orientation joints can be interpreted by drive axis ($y_1'', y_2'', y_3'', y_4''$, in figure \ref{fig:exp1}). This is consistent with all the experiments.
 	\item \textit{Base acceleration:} Describes the Cartesian acceleration of the mobile base.
-	\item \textit{Control torques ($\tau_{control}$):} Represents the resultant control torques of every joints (o1, d1, o2, d2, o3, d3, o4, d4). 
 \end{itemize} 
 
-Below table displays the simulation results. In the following sections each of the cases and its results are analyzed.
+The following table displays the provided inputs and simulation results. In the further sections, each of the cases and its results are analyzed.
 
-\begin{table}[h!]
-	
-	\renewcommand{\arraystretch}{2.2}
-	\resizebox{\textwidth}{3.5cm}{%
-		\begin{tabular}{| l | l | l | l | l |}
+\begin{table}[h!] 
+	\renewcommand{\arraystretch}{2.5}
+	\resizebox{\textwidth}{!}{%
+		\begin{tabular}{| l | l | l | l |}
 			\hline
-			\multicolumn{2}{| M{7.5cm}|}{\textbf{Inputs}}    & \multicolumn{3}{M{15cm}|}{\textbf{Outputs}} \\ \hline
+			\multicolumn{2}{| M{7.5cm}|}{\textbf{Inputs}}    & \multicolumn{2}{M{15cm}|}{\textbf{Outputs}} \\ \hline
 			
-			\textbf{External force ($F_{ext}$)} & \textbf{Feedforward Torques($\tau$)} & \textbf{Joint accelerations ($\Ddot{q}$)} & \textbf{Base acceleration} & \textbf{Control torques ($\tau_{control}$)} \\ \hline
+			\textbf{External force ($F_{ext}$)} & \textbf{Feedforward Torques($\tau$)} & \textbf{Joint accelerations ($\Ddot{q}$)} & \textbf{Base acceleration} \\ \hline
 			
-			\begin{tabular}[c]{@{}l@{}}$\tau_z = 10$ \\ $[0, 0, 0, 0,  0, 10]$ \end{tabular}   &  $[0, 0, 0, 0, 0, 0, 0, 0]$ &  \begin{tabular}[c]{@{}l@{}} $[-0.651743,   -1.36504, -3.97664,  -1.36552,$ \\ $-3.97664, -1.36552, -0.651743, -1.36504]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}} $\dot{\omega}_z = 1.4962 $ \\  $\dot{v}_x = -0.0368095$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.303226, -0, -0.126057, -0,$ \\$ -0.126057, -0, 0.303226, 0]$ \end{tabular} \\ \hline
+			\begin{tabular}[c]{@{}l@{}}$\tau_z = 10$ \\ $[0, 0, 0, 0,  0, 10]$ \end{tabular}   &  $[0, 0, 0, 0, 0, 0, 0, 0]$ &  \begin{tabular}[c]{@{}l@{}} o = $[-0.651743, -3.97664,  -3.97664, -0.651743]$ \\ d = $[-1.36504, -1.36552, -1.36552, -1.36504]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}} $\dot{\omega}_z = 1.4962 $ \\  $\dot{v}_x = -0.0368095$ \end{tabular} \\ \hline
 			
-			\begin{tabular}[c]{@{}l@{}}$f_x = 50$ \\ $[50, 0, 0, 0,  0, 0]$ \end{tabular}   &  $[0, 0, 0, 0, 0, 0, 0, 0]$ &  \begin{tabular}[c]{@{}l@{}} $[3.49264, 0.168407, 3.90164    0.168467,$ \\ $3.90164, 0.168467, 3.49264, 0.168407]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}} $\dot{\omega}_z = -0.184047 $ \\  $\dot{v}_x = 0.158089$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.243069, -0, 0.238214, -0 ,$ \\ $0.238214, -0, 0.243069, -0]$ \end{tabular} \\ \hline
+			\begin{tabular}[c]{@{}l@{}}$f_x = 50$ \\ $[50, 0, 0, 0,  0, 0]$ \end{tabular}   &  $[0, 0, 0, 0, 0, 0, 0, 0]$ &  \begin{tabular}[c]{@{}l@{}} o = $[3.49264, 3.90164, 3.90164,3.49264]$ \\ d = $[0.168407, 0.168467, 0.168467, 0.168407]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}} $\dot{\omega}_z = -0.184047 $ \\  $\dot{v}_x = 0.158089$ \end{tabular} \\ \hline
 			
-			$F_{ext} = [0, 0, 0, 0,  0, 0]$  &  \begin{tabular}[c]{@{}l@{}} $\tau_{d_1} = 1.0$ \\ $\tau_{d_2} = 1.0$ \\ $\tau_{d_3} = 1.0$ \\ $\tau_{d_4} = 1.0$  \end{tabular} &  \begin{tabular}[c]{@{}l@{}} $[ 0.329141, 34.0727, 0.549795, 34.0727,$ \\  $0.757357, 34.1083, 0.12158, 34.1082]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}}  $\dot{v}_x = 0.0111047$ \\ $\dot{v}_y = 0.00467013$ \\ $\dot{\omega}_z = -0.192697$ \end{tabular} & 	\begin{tabular}[c]{@{}l@{}} $[0.0695287, -0, -0.0665266, -0,$ \\ $-0.0539123, -0, 0.0463929, -0]$ \end{tabular} \\ \hline
+			$F_{ext} = [0, 0, 0, 0,  0, 0]$  &  \begin{tabular}[c]{@{}l@{}} $\tau_{d_1} = 1.0$ \\ $\tau_{d_2} = 1.0$ \\ $\tau_{d_3} = 1.0$ \\ $\tau_{d_4} = 1.0$  \end{tabular} &  \begin{tabular}[c]{@{}l@{}} o = $[ 0.329141, 0.549795, 0.757357, 0.12158] $ \\ d =  $[34.0727, 34.0727, 34.1083, 34.1082]$\end{tabular}   & \begin{tabular}[c]{@{}l@{}}  $\dot{v}_x = 0.0111047$ \\ $\dot{v}_y = 0.00467013$ \\ $\dot{\omega}_z = -0.192697$ \end{tabular} \\ \hline
 		\end{tabular}
 	}\renewcommand{\arraystretch}{3}
 	\caption{Experimental analysis}
 \label{tab:experiment}
-	
 \end{table}
 
-\newpage
 
-\section{Experiment 1:}
 
-The first experiment corresponds to the first row in table \ref{tab:experiment}. As mentioned above, the quantities, $q$, $\dot{q}$, $\ddot{q}$, $A_N$ and $b_N$ are kept constant. In the first experiment, only the external torque ($\tau_z$) of 10 units is applied to the base and joint torques is zero. On applying torque of 10N on a rigid-body system, it is expected to produce certain angular acceleration at base. The relation between torque and angular acceleration is given by,
+\section{Experiment 1}
 
-\begin{equation}
-	\tau = I_{z} \dot{\omega}_z
-\end{equation}
+The first experiment corresponds to the first row in table \ref{tab:experiment}. The inputs to the base are external torque of 10 units and no feed-forward torques are imposed on joints. The computed \textit{joint accelerations} and \textit{base acceleration} are interpreted for the resultant motion of the base. Since the external force is applied at the base (i.e., \textit{root} of the kinematic tree structure), the resultant accelerations are computed in the final outward sweep. Below figure shows the initial (default) configuration of the robot base (represented by solid lines) and resultant configuration (denoted by dotted-lines) due to the external torque.
 
-Here, $I_z$ represents the rotational inertia of the body. For the base, $I_z = 3.69$ as obtained from the URDF model. From the above relation, the angular acceleration will be $\dot{\omega}_z = 2.71$ rad/$s^2$. This result is 
 
-{\color{red}Justifications on joint acceleration and control torques}
+
+%In the figure \ref{fig:exp1}, the drive axis (denoted by red solid-arrow) can also be interpreted as shaft connecting orientation joint and drive wheel.  
+
+% It can be seen that the base has rotated by $+\omega_z$ and also moved linearly in negative $x$ direction. 
 
 \begin{figure}[h!]
 	\begin{center}
-		\includegraphics[scale=0.35]{images/exp1_1.png}
+		\includegraphics[scale=0.46]{images/exp1.png}
 	\end{center}
 	\caption{Experiment 1}
+	\label{fig:exp1}
+\end{figure}
+
+\paragraph{}The robot motion is interpreted based on the results obtained from the solver. The resultant motions are then compared with the actual or physical behavior of the system. By analyzing the \textit{base acceleration} values, it is observed that the robot simultaneously rotates ($\omega_z$) and accelerates backwards (negative x acceleration). This is shown in the figure \ref{fig:exp1}, with dotted lines. Additionally, the resultant \textit{joint accelerations} portray how the orientation and drive joints rotate (accelerate) given the external torque. 
+
+\subsection{Estimated motion of robot platform}
+The application of external torque causes the base to accelerate in the direction of the torque. However, the caster joints orient themselves opposite direction with respect to the base. This behavior is due to the inertia of the wheel, that introduces a delay in rotation and generates a reaction force. In the physical system, the friction at the contact point and virtual sliding and rolling constraints also contributes to this reaction force. However, the solver only models sliding constraints and do not explicitly model the friction. Therefore, as seen in the table \ref{tab:experiment}, the acceleration of orientation joints are negative. The axes ($y_1'', y_2'', y_3'', y_4''$) in the figure \ref{fig:exp1}, depicts the default wheel axis and also wheel and the axes ($y_1', y_2', y_3', y_4'$) shows the resultant drive wheel axis caused due to the rotation of orientation joints. Additionally, the magnitudes of all the joint acceleration is expected to be same. But, only two of the values are consistent. The orientation joints on right side (o2 and o3 in figure \ref{fig:exp1}) have higher acceleration that those on left-side (o1 and o4).
+
+% This inequality is due to the rectangular base. In case of a square base, all the joint accelerations would be same.
+
+\paragraph{}Although, the caster joints introduces a delay and rotates opposite direction with respect to the base, the drive wheels accelerate (rotate about \textit{y-axis}) in the same direction as robot base. Referring to the frame assignments in figure \ref{fig:tree-MPO}, the angular acceleration of drive wheels result in negative values. Additionally, the drive joints have approximately same acceleration as the base acceleration ($\omega_z$). The difference is introduced due to the caster offset and the reaction force generated at caster joints.
+
+\paragraph{}Considering the base acceleration, when a positive torque of 10 units is applied to a robot base, it is expected to have a positive angular acceleration. This reasoning do not completely apply for all system (such as a spring system). For interpreting the magnitudes, the general relation between the torque and angular acceleration is considered, which is given by,
+\begin{equation}\label{eq:t}
+	\tau = I_{zz} \dot{\omega}_z
+\end{equation}
+where, $I_{zz}$ is moment of inertia about \textit{z-axis}, which is equal to 3.68 (obtained from URDF model of the robot base). Substituting for $\tau$, results in angular acceleration $\omega_z$ of 2.71 rad/$s^2$. The deviation from the desired and actual acceleration values is 1.21. The difference is because, the equation given in \ref{eq:t}, do not consider the wheel joints. Additionally, the solver results in linear acceleration $\dot{v}_x$, which is not expected in physical behavior.  
+
+\section{Experiment 2}
+In this experiment, a linear force of 50 units is applied at the base. i.e., $f_x = 50$ and joint torques are 0. The figure \ref{fig:exp2} exhibits the initial and resultant configuration of the robot base due to the external force. The computed \textit{joint accelerations} and \textit{base acceleration} are interpreted for the resultant motion of the base. Since the force is applied at the base (i.e., \textit{root} of the kinematic tree structure), the resultant accelerations are computed in the final outward sweep.
+
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[scale=0.46]{images/exp2.png}
+	\end{center}
+	\caption{Experiment 2}
+	\label{fig:exp2}
+\end{figure}
+
+\paragraph{}From the \textit{base acceleration} values, it is observed that the robot simultaneously rotates ($\omega_z$) and accelerates forward (positive x acceleration). This is shown in the figure \ref{fig:exp2}, with dotted lines. Additionally, the resultant \textit{joint accelerations} portray how the orientation and drive joints rotate (accelerate) given the external force. 
+
+\subsection{Estimated motion of robot platform}
+
+When a linear force is applied at the base, the robot is expected to accelerate forward, i.e, in the direction of applied force (according to Newton's second law~\cite{newton1833philosophiae}). In a physical system, when the robot is pulled forward,  the caster joints that are initially oriented inwards, will begin rotate outwards. Because of the inertia of the drive wheel, a reaction force is generated at the drive wheel's point of contact on ground, that causes the orientation joints to rotate outwards (positive z-direction). Interpreting the results from the solver, the accelerations of orientation joints are positive and hence same as the expected behavior (in figure \ref{fig:exp2}, the joint axes ($y_1'', y_2'', y_3'', y_4''$) are initial configuration and axes ($y_1', y_2', y_3', y_4'$) are resultant configuration of joint axes due to the force). 
+
+When caster joints rotate outwards, simultaneously, the drive wheels are expected to orient roughly in the direction of force and accelerate forward (positive y-axis). Comparing this interpretation with the solver results, it is observed that the drive joint acceleration are positive. Additionally, the magnitude of drive joints is expected to be isomorphic with linear acceleration of the base. Based on this interpretation, the obtained values of drive joint accelerations and linear acceleration of base (in table \ref{tab:experiment}) are closer to each other. The error ($\sim$ 0.01) is due to caster offset and the inertia of the wheel.   
+%Furthermore, the delay introduced by the caster joints, causes the base to rotate clockwise (blue arrow at the center of the base, as shown in figure \ref{fig:exp2}).
+
+%Considering the computed joint accelerations, it is observed that the orientation joints have positive values . As mentioned in the first experiment, in a physical system, the caster joints rotate in the opposite direction, with respect to the base, due to the inertia of the wheel. Similarly, in this case, the linear force tends to rotate the caster joints in positive z direction and aligns the drive wheels linearly.
+
+%\paragraph{}Additionally, the resultant accelerations of drive joints (both direction and magnitude) must approximate to the overall acceleration of the base. It is observed from the results that the acceleration are positive (table \ref{tab:experiment}), which means that the drive wheels accelerate in the applied force direction. The magnitudes of each drive wheels are closer to $0.158$ ($\dot{v}_x$, linear acceleration of base).  
+
+
+According to Newton's second law of motion~\cite{newton1833philosophiae}, the relation between force and acceleration is given by,
+\begin{equation}\label{eq:f=ma}
+f_x = m \dot{v}_x
+\end{equation}
+Here, $m = 180kg$, mass of base (according to the technical dimension provided in MPO-700 operating manual~\cite{MPO700}). By substituting the known variables in the equation \ref{eq:f=ma}, linear acceleration $\dot{v}_x = 0.277$ m/s. The error between the calculated and obtained acceleration values (in table \ref{tab:experiment}) is 0.119. This deviation is acceptable, since the equation \ref{fig:MPO-700}, do not consider various other factors like the kinematic tree model, orientation joints, the wheel offset, etc. However, the base is not expected to have angular acceleration. Additionally, in terms of magnitude, the angular acceleration is greater than linear acceleration. This result is unacceptable in the actual behavior. 
+
+\section{Experiment 3}
+
+This experiment corresponds to third row in table \ref{tab:experiment}. In this case, feed-forward torques are applied to the drive joints. The computed joint and base accelerations are estimated for resultant motion of the base. In previous experiments, only external force or torque was applied at the base and the resultant wheel accelerations were analyzed. However, in this case, the drive wheels are explicitly commanded by feed-forward torques, and the behavior/motion of base is analyzed. The figure below, shows the initial (represented by solid-lines) and resultant (represented by dotted-black lines) configuration due to the applied torques. 
+
+
+\paragraph{}When a positive torque is applied to the drive joints, it is expected to produce \textit{positive} acceleration. Due to the inertia of the base, the caster joints rotate in the opposite direction, with respect to base (\textit{positive} angular z according to right hand rule). Similarly, in the obtained results, it is observed that all the joint accelerations (caster and drive) are positive. The figure \ref{fig:exp3} depicts the initial ($y_1'', y_2'', y_3'', y_4''$) and final ($y_1', y_2', y_3', y_4'$) orientation of caster. 
+Interpreting the base acceleration values, given joint torques to the wheels, there is linear and angular acceleration produced at the base. However, in an actual system, this torque must not result in any linear acceleration, but only rotation is assumed in the direction of wheel's angular acceleration.
+
+%Since, the drive joints are expected to accelerate forward, due to its configuration (45$^0$ orientation), the base rotates in negative z direction. 
+
+
+%Considering the resultant base acceleration, it can be interpreted that the robot is simultaneously rotating and moving diagonally in the workspace.
+%In this experiment, no external force is given, the joint torques are applied to drive wheels. In a physical system, the joint torques applied to the wheels result in acceleration of the system. The results show that the base has acceleration along linear-x, linear-y and angular-z. 
+
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[scale=0.46]{images/exp3.png}
+	\end{center}
+	\caption{Experiment 3}
+	\label{fig:exp3}
 \end{figure}
 
 \newpage
-\section{Experiment 2}
-In this experiment, an external force in linear \textit{x} direction is applied on the robot base, i.e., $f_x = 50$ and joint torques is 0. This external force causes the castor wheels to align in the direction of applied force and results in a non-zero linear acceleration at base ($\dot{v}_x = 0.158$). The well-known relation between force and acceleration according to Newton's second law of motion~\cite{newton1833philosophiae} is,
 
-\begin{equation}\label{eq:f=ma}
-	f_x = m \dot{v}_x
-\end{equation}
+\section{Challenges faced}
+The experimental results do not completely \textbf{agree} with physical behavior of the system. The main issue lies in the \textit{constraint calculation}. Generally, the solver computes desired motion of the system while considering \textit{constraint specification}. When an external force or torque is applied to the system, and if it violates the constraints in any way, then the solver computes constraint magnitudes to nullify the effect of external input. To test if the solver satisfied the given constraints, following experiment was conducted.
 
-Here, $m = 180$, mass of base (as given in the URDF model of MPO-700). By substituting the known variables in the equation \ref{eq:f=ma}, yields linear acceleration $\dot{v}_x = 0.277$ SI units. The error ($\delta$) between the calculated and the obtained acceleration value, $\delta = 0.119$. (Justification on error.......)
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[scale=0.4]{images/top-view.png}
+	\end{center}
+	\caption{Experiment for analyzing constraint satisfaction}
+	\label{fig:top-view}
+\end{figure}
 
-Additionally, the applied force produces angular acceleration about z. The relation between linear force and angular acceleration is,
+\paragraph{}The wheels are initially configured as given in the above figure. When an external force is applied in \textit{y-direction}. The robot is not expected to move, due to the sliding constraint. However, the solver results in non-zero acceleration at the base. 
 
-...............
+(complete it)
+\section{Task singularities}
+There are certain conditions where the task might reach singularity. Some of these singularity cases are explained in this section. 
+
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[scale=0.4]{images/a.png}
+	\end{center}
+	\caption{Wheel configuration explaining task singularity}
+	\label{fig:sing}
+\end{figure}
+
+Consider a case where the wheels are configured as shown in figure \ref{fig:sing}, and when an external force is applied (either in X or Y directions), the wheel motions contradict to each other, and hence \textit{singularity} occurs. In the extended algorithm, the singularity can be detected at \textit{inertia matrix}, $H_0^A$ (equation \ref{eq:cartesian-acceleration}). The controller must command the wheels to overcome the singular configurations. 
 
 
-\section{Experiment 3}
-In this experiment, no external force is given, the joint torques are applied to drive wheels that are equal to 1.0 SI units. In a physical system, the joint torques applied to the wheels result in acceleration of the system. The results show that the base has acceleration along linear-x, linear-y and angular-z. 
+
+
+
+%If external force or torque applied to a system, violates these constraints, then the solver computes 
+%
+%The virtual or/and physical constraints of a system is modeled in the solver.   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

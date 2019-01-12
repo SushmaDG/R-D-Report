@@ -6,7 +6,7 @@ As discussed in State of the art, there are various software frameworks and dyna
 extend and apply the \textit{Popov-Vereshchagin hybrid dynamic solver} to mobile robots. 
 
 
-The main feature of the solver is that, given the task requirements, it calculates the instantaneous joint accelerations and control torques of a single end-effector. However, this can be extended to compute the desired motion of multiple end-effectors~\cite{shakhimardanov2015composable}. An autonomous mobile robot can be modeled as kinematic tree structure with wheels as end-effectors. Following sections describe extensions to tree structure and how the extended algorihtm can be applied to mobile robot.
+\paragraph{}The main feature of the solver is that, given the task requirements, it calculates the instantaneous joint accelerations and control torques of a single end-effector. However, this can be extended to compute the desired motion of multiple end-effectors~\cite{shakhimardanov2015composable}. An autonomous mobile robot can be modeled as kinematic tree structure with wheels as end-effectors. Following sections describe extensions to tree structure and how the extended algorihtm can be applied to mobile robot.
 
 
 \section{Extension to kinematic trees}
@@ -53,8 +53,6 @@ As explained in the section \ref{sec:computing-constraints}, the Gauss function,
 
 %The constraint calculation for a fixed base is given in the algorithm \ref{Algorithm1} in line \ref{21}. Here, the \textit{constraint force magnitudes} are calculated in a single step. However, in the case of kinematic tree, the constraint magnitudes corresponding to individual end-effectors must be calculated. 
 
-{\color{red} citation here........}
-
 \begin{equation}\label{eq:U}
 	U_{desired, 0}^A = U_0^A - b_N 
 \end{equation}
@@ -91,10 +89,13 @@ In case of a free floating base (for example: mobile robots, orbiting spacecraft
 
 
 \subsection{Final outward sweep}
-The computations in final outward sweep remains the same, besides the recursion, which must traverse from root to all the end-effectors. The calculated $\nu_{float}$ is substituted in expression $\ref{23}$ and joint accelerations $(\ddot{q})$ are computed. Further in line $\ref{24}$, Cartesian acceleration is calculated.
+The computations in final outward sweep remains the same, besides the recursion, which must traverse from root to all the end-effectors using \textit{breadth-first search} looping technique. The calculated $\nu_{float}$ in equation \ref{eq:nu-float}, is substituted in expression $\ref{23}$ and joint accelerations $(\ddot{q})$ are computed. Further in line $\ref{24}$, Cartesian accelerations are calculated.
 
 \section{Conclusion}
-The \textit{Vereshchagin solver} is exercised in robot manipulators to evaluate hybrid dynamics problem. \cite{KDLopensource} The algorithm has been implemented using \hyperref[kdl]{KDL} library (open-source), by Ruben Smits, Herman Bruyninckx, and Azamat Shakhimardanov~\cite{KDLopensource}. The \hyperref[kdl]{KDL} provides a framework to model and compute solutions to kinematics and dynamics problem. The real-time code that implements solver on manipulator is provided and maintained under \textit{Orocos (Open Robot Control Software) Project} and is written in C++ programming language. The approach that extend and apply the algorithm to mobile robots is described in the next chapter. 
+The chapter provides a theoretical description on solver extension to kinematic tree structure. The modifications in each of the computational sweeps is presented. To implement this extended algorithm to mobile robots, it must initially be modeled as kinematic tree structure. Further, by utilizing the already available code base that was developed by Ruben Smits, Herman Bruyninckx, and Azamat Shakhimardanov~\cite{KDLopensource}, the extended \textit{Vereshchagin solver} is implemented in KDL.
+  
+%The \textit{Vereshchagin solver} is applied to robot manipulators to evaluate hybrid dynamics problem.  As mentioned earlier, the algorithm has been implemented using \hyperref[kdl]{KDL} library (open-source), by Ruben Smits, Herman Bruyninckx, and Azamat Shakhimardanov~\cite{KDLopensource}. The real-time code that implements solver on manipulator is provided and maintained under \textit{Orocos (Open Robot Control Software) Project} and is written in C++ programming language. The approach that extend and apply the algorithm to mobile robots is described in the next chapter. 
+%The \hyperref[kdl]{KDL} provides a framework to model and compute solutions to kinematics and dynamics problem. 
 
 
 %\section{Mobile Robots as Kinematic tree structure}

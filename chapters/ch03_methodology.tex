@@ -1,12 +1,24 @@
 %!TEX root = ../DevaramaniS-[RnD-MT]Report.tex
 \chapter{Popov-Vereshchagin Hybrid Dynamics Solver}
 \label{chap:solver}
-The use cases discussed in section \ref{sec:problem}, requires a way to control the robot motions such that the constraints are satisfied. 
+The use cases discussed in section \ref{sec:problem}, requires an intuitive way of controlling the robot motions while satisfying the task constraints. Fortunately, there were researchers~\cite{article},~\cite{vereshchagin1989modeling} who had introduced a solution through hybrid dynamics algorithm, to the execute desired motions while satisfying constraints originated from task specifications. The following chapter presents detailed description of the algorithm.  
 
+% However, this dynamic algorithm is currently implemented for the kinematic chain structure. Further to implement this solver on mobile robots, it is extended to kinematic-tree structure.
 
 \section{Solver Introduction}
 
-The Popov-Vereshchagin solver is a linear-time constrained hybrid-dynamic solver derived from one of the principles of mechanics - \textit{Gauss principle of least constraints}~\cite{vereshchagin1989modeling}, that formulates a ``dynamically natural way'' to solve the redundancy problem in manipulators~\cite{bruyninckx2000gauss}. The researches based on The main feature of the solver is that it computes desired acceleration of the robot in turn resolving the constraints originating from task requirements. Previous work on solver \cite{article}
+The Popov-Vereshchagin solver is a linear-time constrained hybrid-dynamic solver derived from one of the principles of mechanics - \textit{Gauss principle of least constraints}~\cite{vereshchagin1989modeling}, that formulates a ``dynamically natural way'' to solve the redundancy problem in manipulators~\cite{bruyninckx2000gauss}. The main feature of the solver is that given the dynamic model of the system, it computes desired acceleration of the robot in turn resolving the constraints originating from task requirements. Additionally, the algorithm has \textit{``linear-time computational complexity''} (order $O(N)$). 
+
+There are two types of constraints that can be imposed on a system. They are natural/environmental and artificial (user-specified) constraints. Accounting to the all the specified constraints, in addition to the external forces and joint torques, the algorithm computes required position, velocity, force and acceleration entities of each segments through computational sweeps on entire kinematic chain/tree structure. The figure \ref{fig:sweep} represents outward and inward sweeps along with the computed parameters in each recursions.
+
+%This solver is a hybrid-dynamics algorithm that solves combined forward and inverse dynamics problem. 
+
+\begin{figure}[h!]
+	\label{fig:sweep}
+	\centering
+	\includegraphics[scale=0.3]{images/sweep.png}
+	\caption{An abstract representation of computational sweeps in a kinematic chain, along with computed physical entities and constraints (source:~\cite{shakhimardanov2015composable})}.	
+\end{figure}
 
 % **********************************************************************************
 %{Properties of solver and how is it related to my application why is it nice.... some technical stuff and how solver helps to achive those tasks}
@@ -116,9 +128,21 @@ The outcomes of the optimization problem are computational sweeps that are appli
 
 The algorithm illustrating the computational sweeps in the Vereshchagin solver is described in this section. As specified, the algorithm comprises three recursions - outward, inward and outward. Here, the outward recursion refers to traversing from the fixed base of a kinematic chain to its end-effector. Contrarily, the inward recursion loops from end-effector to base. 
 
+\paragraph{}The required inputs to the algorithm are listed below;
+\begin{itemize}
+	\item \textit{Robot model parameters} - A complete robot model defined by rigid body parameters such as mass, inertia, link lengths of individual segments.
+	\item \textit{Joint positions} defined at current time instance ($q_i$).
+	\item \textit{Joint velocities} ($\dot{q}_i$)
+	\item \textit{Feed-forward joint torques} ($\tau_i$)
+	\item \textit{Cartesian acceleration} at current instance of time defined at the base ($\ddot{X}_0$).
+	\item \textit{External forces} ($F^{ext}_i$).
+	\item \textit{Unit constrained forces} applied at the end-effector defined as a matrix ($A_N$).
+	\item \textit{Acceleration energy set-point} defined at the end-effector ($b_N$).
+\end{itemize}
+
+
 	The complete algorithm is given below~\cite{shakhimardanov2015composable}~\cite{vereshchagin1989modeling}~\cite{vukcevic2018extending},
 
-	\newpage
 \begin{algorithm}[h!]
 
 	\label{Algorithm1}
@@ -168,19 +192,9 @@ The algorithm illustrating the computational sweeps in the Vereshchagin solver i
 \end{algorithm}
 
 
-The required inputs to the algorithm (\ref{Algorithm1}) are listed below;
-\begin{itemize}
-	\item \textit{Robot model parameters} - A complete robot model defined by rigid body parameters such as mass, inertia, link lengths of individual segments.
-	\item \textit{Joint positions} defined at current time instance ($q_i$).
-	\item \textit{Joint velocities} ($\dot{q}_i$)
-	\item \textit{Feed-forward joint torques} ($\tau_i$)
-	\item \textit{Cartesian acceleration} at current instance of time defined at the base ($\ddot{X}_0$).
-	\item \textit{External forces} ($F^{ext}_i$).
-	\item \textit{Unit constrained forces} applied at the end-effector defined as a matrix ($A_N$).
-	\item \textit{Acceleration energy set-point} defined at the end-effector ($b_N$).
-\end{itemize}
 
 %The algorithm (\ref{Algorithm1}) computes the instantaneous robot motion through link-to-link recursions~\cite{shakhimardanov2015composable}. 
+\newpage
 In the following subsections, the associated equations are illustrated.
 
 \subsection{Outward sweep : position, velocity and acceleration recursions}
@@ -226,12 +240,7 @@ In expression \ref{17}, \textit{constraint force matrix} is computed ($A_i$), in
 
 The inward recursion also deals with constraint acceleration energy, $b_N$, that is produced by corresponding columns of constraint forces, $A_N$~\cite{shakhimardanov2015composable}. This is represented by $\mathcal{L}_i$ (line \ref{19}) and is called \textit{constraint coupling matrix}, which is of order $m \times m$ ($m$ is number of constraints). More clearly, each rows in $\mathcal{L}_i$ corresponds to acceleration energy generated by all the constraint forces and accelerations, up until that instance of recursion.
 
-\begin{figure}[h!]
-	\label{fig:sweep}
-	\centering
-	\includegraphics[scale=0.35]{images/sweep.png}
-	\caption{An abstract representation of computational sweeps in a kinematic chain, along with computed physical entities and constraints (source:~\cite{shakhimardanov2015composable})}.	
-\end{figure}
+
 
 \subsection{Computing constraint force magnitudes, $\nu$} \label{sec:computing-constraints}
 
@@ -242,7 +251,7 @@ It is however important to ensure that the matrix $\mathcal{L}_i$ is of full ran
 \subsection{Outward sweep : Control torques and link accelerations}
 In the outward sweep, the control torques and joint accelerations of the constrained motion are computed (line \ref{23} and \ref{24})~\cite{shakhimardanov2015composable}. After minimizing the equation \ref{eq:bellman} with respect to $\nu$ in previous step, the \textit{constraint force magnitudes} is substituted and solved for joint acceleration $\ddot{q}_i$ in the final outward sweep. As mentioned before, the joint $i+1$ experiences external and Coriolis forces ($F_{bias, i+1}^A$), inertial forces ($H_{i+1}^A\prescript{i+1}{}{X}_i \ddot{X}_i$) and feed-forward torques ($\tau_{i+1}$) from the connected child segments. Corresponding to these quantities, the equation in curly braces (line \ref{23}) represents the overall control torque that is required to drive the constrained system~\cite{vukcevic2018extending}.
 
-Reformulating the expression in line \ref{23} and representing the torque components as (see equation \ref{eq:jointaccl})~\cite{vukcevic2018extending},
+\paragraph{}Reformulating the expression in line \ref{23} and representing the torque components as (see equation \ref{eq:jointaccl})~\cite{vukcevic2018extending},
 \begin{equation}\label{eq:jointaccl}
 	\ddot{q}_{i+1} = D_{i+1}^{-1} \big\{ \overbrace{\strut \tau_{i+1}}^\text{input torque} - \underbrace{ \strut S_{i+1}^T \big(F_{bias, i+1}^A + H_{i+1}^A \big(\prescript{i+1}{}{X}_i \ddot{X}_i + \ddot{X}_{bias, i+1}))}_\text{bias torque} - \overbrace{\strut S_{i+1}^T A_{i+1} \nu}^\text{constraint torque} \big \}
 \end{equation}
@@ -263,7 +272,7 @@ The Popov-Vereshchagin Hybrid Dynamic solver computes the desired motion of mani
 	\item \textit{\textbf{Cartesian acceleration constraints:}} \\
 	The task requirements imposes \textit{Cartesian acceleration constraints} on manipulator motions. There are two distinct types of constraints that can be applied on the segments - \textit{physical} and \textit{virtual}. The former refers to environmental contacts, whereas the latter defines the desired Cartesian accelerations as specified by the user~\cite{shakhimardanov2015composable}. 
 	
-	Consider a manipulator with $N$ segments. The \textit{virtual} constraints are specified in matrix $A_N$ of order $6 \times m$, where $m$ is number of constraints. The columns of the matrix represent direction of constraint forces being applied on end-effector. As mentioned in section \ref{inward-sweep}, the acceleration constraints produces \textit{acceleration energy}, represented by $b_N$. The expression for linear constraints is given in equation~\ref{eq:constraint1}. For instance, if the user defines partial constraints to restrict the motion of a segment in $x$ and $z$ directions linearly, then the $A_N$ matrix can be written as follows,
+\paragraph{}Consider a manipulator with $N$ segments. The \textit{virtual} constraints are specified in matrix $A_N$ of order $6 \times m$, where $m$ is number of constraints. The columns of the matrix represent direction of constraint forces being applied on end-effector. As mentioned in section \ref{inward-sweep}, the acceleration constraints produces \textit{acceleration energy}, represented by $b_N$. The expression for linear constraints is given in equation~\ref{eq:constraint1}. For instance, if the user defines partial constraints to restrict the motion of a segment in $x$ and $z$ directions linearly, then the $A_N$ matrix can be written as follows,
 	\begin{equation}\label{eq:A}
 	A_N = 	\begin{bmatrix}
 	0 & 0 \\
@@ -290,17 +299,22 @@ The Popov-Vereshchagin Hybrid Dynamic solver computes the desired motion of mani
 	
 	\end{enumerate}
 	
-	In case of a high level task specification, all the three types of task definitions (as explained previous section) are provided as input to the robot controller. The general control scheme (figure \ref{fig:control-scheme-solver}) including the solver is presented in~\cite{vukcevic2018extending} as,
+\paragraph{}A high-level task specification describes the above presented task definitions. Below figure depicts the position of solver in the general control scheme (figure \ref{fig:control-scheme-solver}). When the user provides desired feed-forward torques, Cartesian accelerations and force to the robot, the controller computes the set-points for each quantities. Using the solver, the desired joint acceleration and torques are computed to realize the task requirements. Further, the measured force and torques from the robot are given as feedback to the controller. 
+	
+%	In case of a high level task specification, all the three types of task definitions (as explained previous section) are provided as input to the robot controller. The general control scheme (figure \ref{fig:control-scheme-solver}) including the solver is presented in~\cite{vukcevic2018extending} as,
 	
 	\begin{figure}[h!]
 		\label{fig:control-scheme-solver}
-		\includegraphics[scale=0.5]{images/control-scheme-solver.png}
-		\caption{General control scheme including the Vereshchagin solver (source:~\cite{vukcevic2018extending})}
+		\includegraphics[scale=0.4]{images/control-scheme.png}
+		\caption{General control scheme including the Vereshchagin solver (adapted from:~\cite{vukcevic2018extending})}
 	\end{figure}
 
+\newpage
 \section{Solver Implementation}
 
-The Vereshchagin solver is currently implemented using Kinematics and Dynamics library~\cite{KDLopensource}, by Herman Bruyninckx, Azamat Shakhimardanov and Ruben Smits. The library is an \textit{open source} and the solver is currently built in C++ programming language. 
+The Vereshchagin solver is currently implemented using Kinematics and Dynamics library~\cite{KDLopensource}, by Herman Bruyninckx, Azamat Shakhimardanov and Ruben Smits. The library is an \textit{open source} and the solver is currently built in C++ programming language. The library only provides the implementation of original algorithm developed by A.F. Vereshchagin~\cite{vereshchagin1989modeling}. However, theoretical extension of the algorithm to kinematic tree structure was provided by Shakhimardanov~\cite{shakhimardanov2015composable}. This is not currently implemented in KDL library. 
+
+The project aims to extend the solver to the mobile robots, by modeling them as kinematic tree. Further, using the available code base, the extended algorithm is implemented in KDL.
 
 
 

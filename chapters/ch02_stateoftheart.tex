@@ -53,7 +53,9 @@ M(q)\ddot{q} + C(q, \ddot{q}) = \tau - \tau_c
 
 where, $\tau_c$ is constraint force vector and is subjected to \textit{holonomic position constraint}, $h(q) = 0$. However, the obtained equation is not optimal. Chapter \ref{chap:solver} explains solver that computes optimal solution to the equation \ref{eq:contact}.
 
-{\color{red}Open source libraries available to implement Rigid body algorithm............}
+Additionally, there are open software libraries introduced to implement these dynamic algorithms. one such library used in the current project is Kinematic and Dynamics library (KDL). This is used to model kinematic structures like tree and chains, and also compute desired robot motions~\cite{KDLopensource}. It implements kinematic and dynamic algorithms. Other examples for software libraries are Rigid Body Dynamics Library (RBDL)~\cite{felis2017rbdl}, Pinocchio~\cite{pinocio}, etc.
+
+
 
 %In development of robots, the software realization of algorithms is important. There are various simulation approaches used to examine the required results. Similarily, to implement the 
 %
@@ -85,7 +87,40 @@ The main feature of the approach is to execute a sequence of manipulation tasks 
 
 Operational Space Formulation (OSF) was introduced to specify and control whole-body motion in robots~\cite{khatib1987unified}~\cite{khatib1987optimization}. The framework primarily analyses and controls manipulator motions in accordance to dynamic features of end-effectors. This approach was further extended to \hyperref[wbosc]{WBOSC}~\cite{khatib2004whole},~\cite{chang2000operational},~\cite{sentis2006whole},~\cite{sentis2005synthesis},~\cite{khatib2008unified}.
 
-A \textit{task-oriented}framework introduced to specify and control whole-body motion was \textit{operational body formulation} For redundant robots, the task description might involve combination of different coordinates and 
+The \hyperref[wbosc]{WBOSC} framework controls the whole-body behavior through simultaneous control of behavioral primitives. The framework introduces hierarchical control of primitives, to ensure safety of environment as well as the robot. The control priority is based on criticality of the tasks. There are mainly three priority levels defined. On the first level lies the constrained tasks such as contacts. Operational tasks like locomotion or manipualtion fall under second priority level. And residual motions such as postures are assigned the least priority. In figure (\ref{fig:osf}), \textit{constraint primitives} regards to constrained tasks such as contacts, joint limits etc. The \textit{task primitives} refer to operational tasks, that corresponds to low-level behaviors (manipulation and locomotion tasks). The \textit{posture primitives} refers to posture control, that is introduced for additional redundancy behaviors.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.35]{images/osf.png}
+	\caption{Control hierarchy representation (source:~\cite{sentis2006whole})}
+	\label{fig:osf}
+\end{figure}
+
+
+ The $\Gamma$ is the figure above represents joint torques. For consistency in representations, here $\tau$ is used. The tasks conflicting constraints are eliminated by projecting them into constraint-null space and task-null space. The $\tau_{postures}$ is projected into task and constraint null space, whereas, $\tau_{tasks}$ is projected only in constraint-null space. Finally, adding all the resultant joint torques, a reference torque value provided to robot. The torque-level equation as given in ~\cite{sentis2006whole}, manifests the above control-hierarchy as,
+ 
+ \begin{equation}\label{eq:osf}
+	 \tau = \tau_{constraints} + N^T_{constraints}(\tau_{tasks} + N^T_{tasks} \tau_{postures})
+ \end{equation}
+ 
+where, $N^T_{constraints}$ and $N^T_{tasks}$ denote projection matrices in constraint and task null-spaces respectively. These matrices facilitates \textit{dynamic consistency} between higher and lower priority behaviors, hence allowing an intuitive way of handling complex systems. Furthermore, the torque vectors are defined using task forward kinematics~\cite{sentis2006whole},
+\begin{equation}
+	\tau_{constraints} = J^T_{constraints} F_{constraints}
+\end{equation} 
+\begin{equation}
+\tau_{tasks} = J^T_{tasks} F_{tasks}
+\end{equation} 
+\begin{equation}
+\tau_{posture} = J^T_{posture} F_{posture}
+\end{equation}
+where, $J^T_{constraints},J^T_{tasks}, J^T_{posture}$ represents Jacobian matrices mapping cartesian force vectors controlling constraint tasks ($F_{constraint}$), end-effector tasks ($F_{tasks}$) and postures ($F_{posture}$) respectively to joint space. Here, by projecting low-level tasks into null-space eliminates constraint violating motions, which results in an intuitive monitoring of robot motions for task in-consistency.
+
+%where,  corresponds to force vector of defined at each end-effectors. Correspondingly the  maps these force vectors to joint space. Furthermore, $\tau_{postures}$ is given by,
+% 
+% is jacobian matrix for mapping between force vectors controlling postures  to joint space.
+%This elimination of constraints enables the robot to be monitored for task in-feasibility.
+ 
+%A \textit{task-oriented} framework introduced to specify and control whole-body motion was \textit{operational space formulation} For redundant robots, the task description might involve combination of different coordinates and 
 
 
 
@@ -150,13 +185,13 @@ An autonomous mobile robot navigate from its current location to destination by 
 \end{figure}
 
 
-For a given navigation task, the \textit{reference model} (above figure) computes the error ($e_M$) between desired and current location of robot. This error is further adjusted according to robot parameters. To use this reference model as controller, the method assumes to have robot's velocity control scheme that is fixed. If error calculated is 0 ($e_M = 0$), then the final control loop looks like the double-lined block. The error, $e_M \neq 0$ represents that the robot parameters (velocities and acceleration) are not within the scope. Then offline retuning of the controller parameters is done as a function of error $e_M$. The method do not consider the dynamic robot parameters, instead it fine tunes them to obtain desired robot motion in presence of kinematic and dynamic constraints. The paper also presents the experimentation, where, reactive navigation i.e., avoiding unknown obstacles to achieve safe navigation is executed using this \textit{reference model}. The main drawback of the approach is that it implements velocity controller and assumes it to be fixed. However, {\color{red}In a dynamic environment, the controller must execute instantaneous robot motions to avoid unexpected collisions. This can be achieved at acceleration level rather than velocity-level}
+For a given navigation task, the \textit{reference model} (above figure) computes the error ($e_M$) between desired and current location of robot. This error is further adjusted according to robot parameters. To use this reference model as controller, the method assumes to have robot's velocity control scheme that is fixed. If error calculated is 0 ($e_M = 0$), then the final control loop looks like the double-lined block. The error, $e_M \neq 0$ represents that the robot parameters (velocities and acceleration) are not within the scope. Then offline retuning of the controller parameters is done as a function of error $e_M$. The method do not consider the dynamic robot parameters, instead it fine tunes them to obtain desired robot motion in presence of kinematic and dynamic constraints. The paper also presents the experimentation, where, reactive navigation i.e., avoiding unknown obstacles to achieve safe navigation is executed using this \textit{reference model}. The main drawback of the approach is that it implements velocity controller and assumes it to be fixed. However, In a dynamic environment, the controller must execute instantaneous robot motions to avoid unexpected collisions. This can be achieved at acceleration level rather than velocity-level.
 
 \paragraph{}In the literature~\cite{borenstein1989real}, the authors have proposed \textit{Vector Force field} concept to implement real-time \textit{collision avoidance} in mobile robots. The method is based on two abstractions, a) Representation of obstacles as \textit{Certainty Grids}, b) Navigation based on \textit{Potential Fields}. Combining these two abstractions and accounting to dynamic properties of mobile robots, \hyperref[vff]{VFF} solves \textit{local minimum trap}~\cite{julia2008local},~\cite{park2003new}. 
 
 \paragraph{}The \textit{local minimum trap} problem regards to the robot being trapped due to the occurrence of local minimum in the \textit{potential field} approach and robot cannot proceed with further exploration. There are two algorithm presented in the approach. One to enhance the dynamic motion of robot and other to recover from \textit{trap}. Additionally, the method considers the situation of collision avoidance in dynamic environment as wall-following problem, i.e., after encountering obstacle, the robot follows, while maintaining constant distance, along the contour of detected object until its reaches original course. 
 
-\paragraph{}The approach~\cite{borenstein1989real} is tested on a mobile robot platform named CARMEL, in which the real time model was represented by \textit{Certainty grids}. Combining this representation with \textit{virtual potential field} resulted in clusters. The cluster with high likelihood is considered as an obstacle. Additionally, the possible trap conditions were eliminated by following a set of heuristic rules. However, {\color{red}the method fails to avoid unexpected obstacles, because motions controlled at velocity level cannot cope with instantaneous change in motion.}
+\paragraph{}The approach~\cite{borenstein1989real} is tested on a mobile robot platform named CARMEL, in which the real time model was represented by \textit{Certainty grids}. Combining this representation with \textit{virtual potential field} resulted in clusters. The cluster with high likelihood is considered as an obstacle. Additionally, the possible trap conditions were eliminated by following a set of heuristic rules. However, the method fails to avoid unexpected obstacles, because the motions controlled at velocity level cannot cope with instantaneous change in motion.
 
 %because the robot motions are controlled at velocity level and hence the motion commands cannot be controlled instantaneously.
 
@@ -165,13 +200,12 @@ For a given navigation task, the \textit{reference model} (above figure) compute
 \section{Limitations of previous work}
 The current state of the art discussed various software frameworks and safe-navigation approaches. The limitations of these methods with respect to the use cases explained in \ref{sec:problem} are presented in this section. 
 
-\paragraph{}The Software frameworks are currently deployed in manipulators. The key feature of these frameworks is that, they support various constraints originating from task specifications, to accomplish desired motion. It also provides a customized way of specifying and executing complex tasks. The utilities of these task specification frameworks have not been explored for mobile robots. 
+The Software frameworks are currently deployed in manipulators. The key feature of these frameworks is that, they support various constraints originating from task specifications, to accomplish desired motion. It also provides a customized way of specifying and executing complex tasks. However, the utilities of these task specification frameworks have not been explored for mobile robots. 
 
-Furthermore, the safe navigation techniques currently implemented in mobile robots are discussed in \ref{sec:dynamic-modeling}. In these methods, the robot motions are controlled at \textit{velocity-level}
+Furthermore, the safe navigation techniques currently implemented in mobile robots are discussed in \ref{sec:dynamic-modeling}. In these methods, the robot motions are controlled at \textit{velocity-level}. Although, the approaches modeled the dynamic behavior of the mobile robots, at low-level, the motions were velocity controlled. These methods are not feasible for satisfying the tasks comprising of multiple constraints (force, position and/or acceleration). Therefore, the goal of the project is to extend and apply an existing dynamic solver called \textit{Popov-Vereshchagin solver}. This solver, considering the dynamics of the robot and constraints imposed by the task requirements, computes the desired robot motions.
 
-YET TO EDIT!
 
-above discussed safe-navigation approaches (in section \ref{sec:dynamic-modeling}), aims at achieving safe-navigation while considering the dynamic model of the robot. However, in all those methods, the robot motions are controlled at \textit{velocity-level}. The use cases explained in section \ref{sec:problem}, need to control the robot motions at force and acceleration level. 
+%above discussed safe-navigation approaches (in section \ref{sec:dynamic-modeling}), aims at achieving safe-navigation while considering the dynamic model of the robot. However, in all those methods, the robot motions are controlled at \textit{velocity-level}. The use cases explained in section \ref{sec:problem}, need to control the robot motions at force and acceleration level. 
 
 
 

@@ -34,7 +34,7 @@ A kinematic tree comprises of interconnected segments (links). A typical kinemat
 	\begin{center}
 		\includegraphics[scale=0.25]{images/segment}
 	\end{center}
-	\caption{KDL Segment (source: \cite{kinematictreeKDL})}
+	\caption{KDL Segment (adapted from: \cite{kinematictreeKDL})}
 	\label{fig:segment}
 \end{figure} 
 
@@ -50,7 +50,7 @@ A kinematic tree comprises of interconnected segments (links). A typical kinemat
 
 \begin{figure}[h]
 	\includegraphics[scale=0.36]{images/kinematic-tree}
-	\caption{Kinematic tree representation in KDL (source: \cite{kinematictreeKDL})}
+	\caption{Kinematic tree representation in KDL (adapted from \cite{kinematictreeKDL})}
 	\label{fig:kinematic-tree}
 \end{figure}
 
@@ -62,9 +62,9 @@ A sub-chain is defined from root to the drive wheel's point of contact on the gr
 
 \begin{figure}[h!]
 	\begin{center}
-		\includegraphics[scale=0.45]{images/MPO-700-tree}
+		\includegraphics[scale=0.5]{images/MPO-700-tree}
 	\end{center}	
-	\caption{Representation of tree structure on MPO-700 [source: \cite{MPO700-Datasheet}](Note: The links with same name represents identical transformation)}
+	\caption{Representation of tree structure on MPO-700 [adapted from (source: \cite{MPO700-Datasheet})](Note: The links with same name represents identical transformation)}
 	\label{fig:tree-MPO}
 \end{figure}
 
@@ -82,8 +82,20 @@ A sub-chain is defined from root to the drive wheel's point of contact on the gr
 	\begin{center}
 		\includegraphics[scale=0.45]{images/kinematic-tree-MPO-700}
 	\end{center}	
-	\caption{Kinematic tree structure of MPO-700 robot base (source: \cite{MPO700})}
+	\caption{Kinematic tree structure of MPO-700 robot base (adapted from [source: \cite{MPO700}])}
 	\label{fig:planar-tree}
+\end{figure}
+
+\subsubsection*{Joint assignments}
+The figure \ref{fig:tree-MPO}, depicts the complete tree structure of MPO-700 with the frames and links. Here, the representation of each frames and joint assignments are described. 
+\paragraph{}The root frame ($\{R\}$) is defined at the center of the base (in below figure). The base motion is expressed with respect to this frame. Similarly, the orientation and drive joints are expressed in $\{O\}$ and $\{W\}$ frames respectively. The orientation (caster) joints are assigned as shown in the below figure. The blue double-line between orientation joint and drive wheel represents the caster offset. Furthermore, d1, d2, d3 and d4 denote drive joints. The frame $\{W\}$ is oriented by 45$^0$ with respect to root frame $\{R\}$. 
+
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[scale=0.4]{images/conventions}
+	\end{center}	
+	\caption{Joint assignments for the MPO-700 robot base}
+	\label{fig:conventions}
 \end{figure}
 
 \newpage

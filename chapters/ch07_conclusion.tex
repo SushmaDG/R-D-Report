@@ -3,11 +3,24 @@
 \chapter{Conclusions}
 
 \section{Contributions}
-This project presents an extension to a \textit{Constrained hybrid dynamic algorithm} called \textit{Popov-Vereshchagin solver}. The existing approach is implemented for kinematic chain structure (robot manipulators). The main feature of the solver is
 
+The project provides a standardized method for handling mobile robot tasks. It is an augmentation for task execution while resolving specified constraints. This is achieved by extending \textit{Popov-Vereshchagin hybrid dynamic solver} to the mobile bases. The primary feature of the solver that makes it suitable for its application is that, given a dynamic model of the system and task constraints, it computes desired accelerations/motions to fulfill the given task. Currently the algorithm is implemented for chain-structures. Although a theoretical description on solver extension to kinematic tree structure was provided by A. Shakhimardanov in \cite{shakhimardanov2015composable}, it lacks the implementation. Hence, the project implements the extended algorithm by modeling an existing robot platform (MPO-700) as kinematic tree structure. 
 
+%Chapter \ref{chap:extension} explains the extension of the algorithm in each of the computational sweeps. And chapter \ref{chap:experiment} presents experimental evaluation of the extended solver. 
 
 \section{Lessons learned}
 
+On analyzing the complete project, it is understood that by controlling mobile robot motions at acceleration/force level, would results in better task handling. By utilizing just the dynamic model of the system, any specified task can be executed in a ``dynamically natural way'' by computing true motion. Additionally, the solver can handle multiple constraints (including force, acceleration and position) imposed on the system. 
+
+Alternatively, during the implementation, it was difficult to trace back the issues since the conventions vary from one entity to other in KDL implementation itself. 
+
+%Regarding the implementation, it was found that there are three different conventions used for implementing one algorithm. The original algorithm that is implemented in KDL follows different convention. For creating the chain model, the KDL conventions are used and for original algorithm, featurestone conventions
 
 \section{Future work}
+The experimentation results do not provide expected motion/behavior of system. The possible reasons for this are rigid-body inertia specification or constraint calculation. The future work is to resolve these issues and. 
+
+Additionally, in the project, the experimentation is conducted in simulation environment, future work aims at real-time implementation on robot platform. 
+
+It is also important to note that some of the wheel configurations results in task singularities. The singularity cases can be detected in \textit{inertia matrix} (see equation \ref{eq:cartesian-acceleration}). External control commands are required to resolve such situations.
+
+%Currently the project provides only simulated results. Further, the solver can be implemented on real robotic system. Additionally, as mentioned previously, the wheel configurations result in task singularity. 

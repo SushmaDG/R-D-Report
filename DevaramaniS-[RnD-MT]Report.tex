@@ -13,6 +13,7 @@
 \usepackage{amsfonts}
 \usepackage{mathtools}
 \usepackage{amssymb}
+\usepackage{multirow}
 %\usepackage{hyperref} 
 \usepackage{graphicx}
 \usepackage{array}
@@ -88,12 +89,20 @@ Sven Schneider
 	\statementpage
 	
 	\begin{abstract}
-		The objective of the project is to extend and apply the Vereshchagin hybrid dynamic solver to mobile robots. A typical execution of mobile robot tasks involves navigation from one point to another by effectively avoiding obstacles. In autonomous systems, there are various algorithms employed to implement collision avoidance. These approaches follow velocity-based control scheme, which primarily aims at ignoring physical contact with the objects around the robot. However, if the situation demands physical contact robot must not cause any damage to the environment. However, when the robot comes across an obstacle unexpectedly, the velocity control strategy fails. The reason for failure is that the control scheme cannot instantly detect the object and control the robot motions. Therefore, there is a need to include safety constraints which the robot must handle while executing its functions. The issue of handling safety constraints has been addressed in robot manipulators for ages since they are continuously involved in manipulating the objects in the world. Additionally, the diversity of robot motion tasks has led to the development of (constrained) task control methodologies with origins in force control, humanoid robot control, mobile manipulator control, visual servoing, etc. The sequence of tasks such as pick and place operations in manipulators are executed through task specification strategy, where each of the associated task constraints is modeled. Nevertheless, there is no specific task specification approach employed in mobile robots. In robot manipulators, there are several software frameworks, algorithms and dynamic solvers employed to realize the task constraints instantly and efficiently. The Popov-Vereshchagin solver is one such dynamic solvers practiced by manipulators. The Vereshchagin is a significant algorithm for the posture control of mobile manipulators and humanoid robots since such tasks typically require specifications of motion and/or force constraints on the end-effectors and other segments. Additionally, the Vereshchagin solver can be applied to closed as well as open kinematic chains. Since the wheels and base of the mobile robot can be modeled as a closed kinematic chain, the solver can be extended and applied to mobile robots.
+		Most of the current approaches for implementing robot navigation tasks, control the robot motions at velocity-level. Although these methods are relevant for simple navigation tasks, they cannot support complex tasks involving multiple constraints imposed on robot motion. The main aim of the project is to provide a standardized method to specify and control mobile robot motions while resolving the constraints imposed by task requirements. One such approach that satisfies the above stipulation is \textit{Popov-Vereshchagin hybrid dynamic algorithm}. Currently the algorithm is applied only in the field of manipulators. In this project the existing 
+		There is a programming support for simple navigation tasks. 
+		
+		The objective of the project is to extend and apply the Vereshchagin hybrid dynamic solver to mobile robots. 
+		
+		A typical execution of mobile robot tasks involves navigation from one point to another by effectively avoiding obstacles. In autonomous systems, there are various algorithms employed to implement collision avoidance. These approaches follow velocity-based control scheme, which primarily aims at ignoring physical contact with the objects around the robot. However, if the situation demands physical contact robot must not cause any damage to the environment. However, when the robot comes across an obstacle unexpectedly, the velocity control strategy fails. The reason for failure is that the control scheme cannot instantly detect the object and control the robot motions. Therefore, there is a need to include safety constraints which the robot must handle while executing its functions. The issue of handling safety constraints has been addressed in robot manipulators for ages since they are continuously involved in manipulating the objects in the world. Additionally, the diversity of robot motion tasks has led to the development of (constrained) task control methodologies with origins in force control, humanoid robot control, mobile manipulator control, visual servoing, etc. The sequence of tasks such as pick and place operations in manipulators are executed through task specification strategy, where each of the associated task constraints is modeled. Nevertheless, there is no specific task specification approach employed in mobile robots. In robot manipulators, there are several software frameworks, algorithms and dynamic solvers employed to realize the task constraints instantly and efficiently. The Popov-Vereshchagin solver is one such dynamic solvers practiced by manipulators. The Vereshchagin is a significant algorithm for the posture control of mobile manipulators and humanoid robots since such tasks typically require specifications of motion and/or force constraints on the end-effectors and other segments. Additionally, the Vereshchagin solver can be applied to closed as well as open kinematic chains. Since the wheels and base of the mobile robot can be modeled as a closed kinematic chain, the solver can be extended and applied to mobile robots.
 	\end{abstract}
 	
 	
 	\begin{acknowledgements}
-		Thanks to ....
+		I would like to express my sincere gratitude to Dr. Paul G. Plöger for helpful feedback and remarks on my project. I would especially like to thank M.Sc. Sven Schneider for his support and guidance throughout the project. 
+		
+		Finally I would like to thank my friends and family for their continuing support in my work.
+
 	\end{acknowledgements}
 	
 	
